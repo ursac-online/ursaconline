@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/static/css/main.16bc8bdc.css",
+    "main.js": "/static/js/main.b5dca19e.js",
+    "static/media/phil.png": "/static/media/phil.4e8f3351b3ff6d2d798a.png",
+    "static/media/defaultCoverPhoto.png": "/static/media/defaultCoverPhoto.99360656f75851e50c99.png",
+    "static/media/quizBackgroundPhoto.png": "/static/media/quizBackgroundPhoto.99360656f75851e50c99.png",
+    "static/media/urslogo.png": "/static/media/urslogo.03d1705c3c746cd0ac46.png",
+    "static/media/logo1.png": "/static/media/logo1.9a710d961dd6d8d4b497.png",
+    "static/media/logo2.png": "/static/media/logo2.486fa0090cb64eea6a56.png",
+    "static/media/logo5.png": "/static/media/logo5.a863f905e4d5087e2c3b.png",
+    "static/media/logo4.png": "/static/media/logo4.3b63a566b286e4f3698e.png",
+    "index.html": "/index.html",
+    "main.16bc8bdc.css.map": "/static/css/main.16bc8bdc.css.map",
+    "main.b5dca19e.js.map": "/static/js/main.b5dca19e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.16bc8bdc.css",
+    "static/js/main.b5dca19e.js"
+  ]
+}
