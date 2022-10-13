@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AppBar, Avatar, Drawer, IconButton, List, Menu, ListItem, ListItemText, makeStyles, MenuItem, Toolbar, Tooltip, Box, ListItemIcon, Divider, Typography } from '@material-ui/core'
+import { AppBar, Avatar, Drawer, IconButton, List, Menu, ListItem, ListItemText, makeStyles, MenuItem, Toolbar, Tooltip, Box, ListItemIcon, Divider, Typography, Icon } from '@material-ui/core'
 import { AddCircle, ChevronLeftRounded, MenuRounded, ViewModule } from '@material-ui/icons';
 import logo4 from '../images/logo4.png'
 import logo5 from '../images/logo5.png'
@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import Cookies from 'js-cookie'
+import axios from 'axios';
+import { useEffect } from 'react';
 
 const drawerWidth = 70;
 
@@ -132,7 +134,26 @@ export default function Layout({ children }) {
   const classes = useStyle()
   const navigate = useNavigate()
   const [openDrawer, setOpenDrawer] = useState(false)
+  const Cookie = Cookies.get('idLoggedIn');
 
+  const showStudentsInfo = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getStudents.php', JSON.stringify(Cookie))
+        .then((response) => {
+            if (response.data) {
+                Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
+                Cookies.set('userFirstName', response.data[0].firstName)
+            }
+
+        })
+        .catch(error => {
+            console.log(error);
+        })
+}
+
+
+useEffect(() => {
+  showStudentsInfo();
+}, []);
 
 
   const [anchor, setAnchor] = useState(null)
@@ -193,8 +214,8 @@ export default function Layout({ children }) {
           
           <Menu elevation={2} className={classes.menu} open={Boolean(anchor)} anchorEl={anchor} onClose={closeMenu} keepMounted >
             <MenuItem disabled> {user} </MenuItem>
-            <MenuItem dense onClick={() => {navigate('/editAccount')}}> Edit Profile </MenuItem>
-            <MenuItem dense onClick={() => {navigate('/editPassword')}}> Change Password </MenuItem>
+            <MenuItem dense onClick={() => {navigate('/editProfile'); setAnchor(null)}}> Edit Profile </MenuItem>
+            <MenuItem dense onClick={() => {navigate('/editPassword'); setAnchor(null)}}> Change Password </MenuItem>
             <Divider />
             {/* <MenuItem dense onClick={accountDetails}> Account Details </MenuItem> */}
             <MenuItem dense onClick={logout}> Sign Out </MenuItem>
@@ -211,7 +232,7 @@ export default function Layout({ children }) {
               </IconButton>
 
               <center>
-                <img src={logo4} style={{ width: '70px', height: 'auto' }} alt="" />
+                <Icon><img src={logo4} style={{ width: '70px', height: 'auto' }} alt="" /></Icon>
               </center>
 
               <List>
@@ -227,12 +248,12 @@ export default function Layout({ children }) {
 
 
           <div className={classes.title}>
-            <Link to='/'><img className={classes.iconLogo} src={logo5} style={{ width: '40px', height: 'auto' }} alt="" /></Link>
+            <Icon><Link to='/'><img className={classes.iconLogo} src={logo5} style={{ width: '40px', height: 'auto' }} alt="" /></Link></Icon>
           </div>
 
             <Typography className={classes.whiteText} >{userFirstName}</Typography>
           <IconButton onClick={openMenu}>
-            <Avatar />
+            <Avatar src='https://ursacapi.000webhostapp.com/api/files/174302-phil.png' />
           </IconButton>
         </Toolbar>
       </AppBar>

@@ -24,7 +24,7 @@ const useStyle = makeStyles((theme) => {
     }
 })
 
-export default function StudentPosts({ activity }) {
+export default function StudentPosts({ activity, img }) {
     const classes = useStyle()
 
 
@@ -33,7 +33,7 @@ export default function StudentPosts({ activity }) {
             <Link className={classes.cardLink} to={`/studentActivity/${activity.id}`}>
                 <Card className={classes.root} variant='outlined'>
                     <CardHeader avatar={
-                        <Avatar />
+                        <Avatar src={img} />
                     }
                         title={activity.nameWhoPosted}
                     />

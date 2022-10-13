@@ -35,7 +35,7 @@ export default function StudentLogin({handleChangeToTeacher}) {
     const classes = useStyle();
 
     const [data, setData] = useState({
-        email: '',
+        studentID: '',
         password: ''
     })
 
@@ -51,7 +51,7 @@ export default function StudentLogin({handleChangeToTeacher}) {
     const handleSubmit = (event) => {
         event.preventDefault();
         const sendData = {
-            email: data.email,
+            studentID: data.studentID,
             password: data.password
         }
         axios.post('https://ursacapi.000webhostapp.com/api/studentLogin.php', JSON.stringify(sendData))
@@ -106,9 +106,9 @@ export default function StudentLogin({handleChangeToTeacher}) {
 
                 <TextField
                     onChange={handleChange}
-                    value={data.email}
-                    placeholder='Email'
-                    name='email'
+                    value={data.studentID}
+                    placeholder='Student ID'
+                    name='studentID'
                     variant='outlined'
                     type='text'
                     autoComplete='off'

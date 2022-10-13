@@ -1,11 +1,26 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormHelperText, FormLabel, Icon, TextField, Typography } from '@material-ui/core'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormHelperText, FormLabel, Icon, makeStyles, TextField, Typography } from '@material-ui/core'
 import axios from 'axios';
 import React from 'react'
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import { CheckCircleOutlineRounded } from '@material-ui/icons';
 
+    const useStyle = makeStyles(theme => {
+        return {
+            green: {
+                color: 'green'
+            },
+            iconContainer: {
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+            }
+        }
+    })
+
 function EditPassword() {
+
+    const classes = useStyle()
 
     const Cookie = Cookies.get('idLoggedIn')
 
@@ -52,6 +67,7 @@ function EditPassword() {
                     })
                 }
             })
+            .catch(error => console.log(error))
     }
 
     const cancelSubmit = () => {
@@ -138,9 +154,12 @@ function EditPassword() {
 
                 {
                     success ?
-                        <DialogContent>
+                        <DialogContent className={classes.iconContainer}>
                             <DialogContentText >
-                                Password Changes Applied <Icon><CheckCircleOutlineRounded /></Icon>
+                                <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
+                            </DialogContentText>
+                            <DialogContentText>
+                                Password Changes Applied
                             </DialogContentText>
                         </DialogContent>
 

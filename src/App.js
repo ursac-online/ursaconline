@@ -32,6 +32,7 @@ import ManageAccount from './components/JoinClass';
 import JoinClass from './components/JoinClass';
 import StudentActivity from './components/StudentActivity';
 import EditPassword from './pages/EditPassword';
+import EditProfile from './pages/EditProfile';
 
 const theme = createTheme({
   typography: {
@@ -116,6 +117,7 @@ function App() {
           <Route path='/studentActivity/:id' element={<StudentLayout><StudentActivity /></StudentLayout>} />
 
           <Route path='/editPassword' element={<StudentLayout><EditPassword /></StudentLayout>} />
+          <Route path='/editProfile' element={<StudentLayout><EditProfile /></StudentLayout>} />
 
           
           <Route path='/manageAccount' element={<ManageAccount />}/>

@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react'
-import { Box, Button, Container, TextField, Link, Typography, Fade, MenuItem, FormHelperText } from '@material-ui/core';
+import { Box, Button, Container, TextField, Link, Typography, Fade, MenuItem, FormHelperText, Icon } from '@material-ui/core';
 import logo2 from '../images/logo2.png'
 import logo1 from '../images/logo1.png'
 import logo from '../images/logo1.png'
@@ -143,7 +143,7 @@ export default function Login() {
             {isPending &&
                 <Fade in={true} >
                     <div className={classes.loading}>
-                        <img src={urslogo} className={classes.loadingImage} />
+                        <Icon><img src={urslogo} className={classes.loadingImage} /></Icon>
                     </div>
                 </Fade>
             }
@@ -154,13 +154,13 @@ export default function Login() {
 
                         <div className={classes.logoContainer}>
                             <Box className={classes.responsiveLogo}>
-                                <img className={classes.logo} src={logo} alt="URSAC Online logo" />
+                                <Icon><img className={classes.logo} src={logo} alt="URSAC Online logo" /></Icon>
                             </Box>
                             <Box className={classes.responsiveLogo1}>
-                                <img className={classes.logo} src={logo1} alt="URSAC Online logo" />
+                                <Icon><img className={classes.logo} src={logo1} alt="URSAC Online logo" /></Icon>
                             </Box>
                             <Box className={classes.responsiveLogo2}>
-                                <img className={classes.logo} src={logo2} alt="URSAC Online logo" />
+                                <Icon><img className={classes.logo} src={logo2} alt="URSAC Online logo" /></Icon>
                             </Box>
                         </div>
 
