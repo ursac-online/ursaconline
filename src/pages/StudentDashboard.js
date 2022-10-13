@@ -37,19 +37,7 @@ export default function StudentDashboard() {
         }
     }
 
-    const showStudentsInfo = () => {
-        axios.post('https://ursacapi.000webhostapp.com/api/getStudents.php', JSON.stringify(Cookie))
-            .then((response) => {
-                if (response.data) {
-                    Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
-                    Cookies.set('userFirstName', response.data[0].firstName)
-                }
-
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
+    
 
 
     const [subjects, setSubjects] = useState([]);
@@ -71,7 +59,6 @@ export default function StudentDashboard() {
 
     useEffect(() => {
         sessionCheck();
-        showStudentsInfo();
         showClassrooms();
 
     }, []);

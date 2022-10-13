@@ -72,13 +72,27 @@ export default function StudentFeed({ }) {
   useEffect(() => {
     streamFeed();
     getClassrooms();
+    getFiles();
     // user();
   }, []);
+
+  const [img, setImg] = useState('');
+  const getFiles = () => {
+
+    axios.post('https://ursacapi.000webhostapp.com/api/getFile.php', JSON.stringify(id))
+    .then(response => {
+      setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
+      console.log(response.data[0].files);
+    })
+    .catch(err => console.log(err))
+  }
+
 
   const [noPost, setNoPost] = useState(true);
   const [postData, setPostData] = useState({
     title: '',
-    body: ''
+    body: '',
+    file: ''
   });
 
   const handleChange = (event) => {
@@ -91,22 +105,51 @@ export default function StudentFeed({ }) {
 
   const [activities, setActivities] = useState([])
 
-  const handlePost = () => {
+  const [newFile, setNewFile] = useState(null);
+  const handleFileChange = (event) => {
+    // let files = event.target.files[0];
+   let currentFile = event.target.files[0];
 
-    const sendData = {
-      title: postData.title,
-      body: postData.body,
-      updateID: CookieID,
-      updateName: CookieName,
-      id
-    };
-
-    axios.post('https://ursacapi.000webhostapp.com/api/addPost.php', JSON.stringify(sendData))
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(err => console.log(err))
+    setNewFile(currentFile)
   }
+
+  const handlePost = async (e) => {
+e.preventDefault()
+    // const sendData = {
+    //   title: postData.title,
+    //   body: postData.body,
+    //   file: postData.file,
+    //   updateID: CookieID,
+    //   updateName: CookieName,
+    //   id
+    // };
+
+
+    let res = await uploadFile(newFile) 
+    console.log(res.data);
+    
+      // .then(response => {
+      //   console.log(response.data);
+      // })
+      // .catch(err => console.log(err))
+    
+  }
+
+  const uploadFile = async (newFile) => {
+    const formdata = new FormData();
+
+    formdata.append('avatar', newFile);
+
+
+    return await axios.post('https://ursacapi.000webhostapp.com/api/addPost.php', formdata, {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    });
+  }
+
+
+  
 
 
   return (
@@ -151,7 +194,7 @@ export default function StudentFeed({ }) {
                     multiline
                   />
 
-                  <input className={classes.input} onChange={(e) => console.log(e.target.value)} type="file" accept='image/*' id='attach-file' />
+                  <input  onChange={handleFileChange} type="file" name='file' id='attach-file' />
                   <label htmlFor="attach-file">
                     <IconButton component='span'><Tooltip title='Attach a file' placement='right-start' ><AttachFileRounded /></Tooltip></IconButton>
                   </label>
@@ -177,7 +220,7 @@ export default function StudentFeed({ }) {
               <Box>
                 {activities.map(activity => (
                   <Grid item xs={12} key={activity.id}>
-                    <StudentPosts activity={activity} />
+                    <StudentPosts activity={activity} img={img} />
                   </Grid>
                 ))}
               </Box>
