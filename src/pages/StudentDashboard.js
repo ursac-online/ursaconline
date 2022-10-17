@@ -26,8 +26,8 @@ export default function StudentDashboard() {
     const classes = useStyle();
 
     const navigate = useNavigate();
-    const Cookie = Cookies.get('idLoggedIn');
     const [isLoading, setIsLoading] = useState(true);
+    const Cookie = Cookies.get('idLoggedIn');
 
     const [noClassroom, setNoClassroom] = useState(true);
 

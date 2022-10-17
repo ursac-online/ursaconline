@@ -3,7 +3,7 @@ import { ChevronLeftRounded, CloseRounded } from '@material-ui/icons'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { format } from 'date-fns'
+import Cookies from 'js-cookie'
 
 const useStyle = makeStyles(theme => {
     return {
@@ -19,6 +19,14 @@ const useStyle = makeStyles(theme => {
 
 function StudentActivity() {
     const classes = useStyle()
+    const navigate = useNavigate();
+    const Cookie = Cookies.get('idLoggedIn')
+
+    function sessionCheck() {
+        if (!Cookie) {
+            navigate('/');
+        }
+    }
 
     const [post, setPost] = useState({});
 
@@ -40,16 +48,11 @@ function StudentActivity() {
 
     }
 
-    const navigate = useNavigate();
-    //    const currentDate = post.dateCreated;
-
-    //     function datePosted (currentDate) {
-    //         return format(new Date(currentDate), 'dd/MM/yyyy')
-    //     }
-
+    
 
     useEffect(() => {
         getPost();
+        sessionCheck()
     }, []);
 
 

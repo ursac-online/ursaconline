@@ -4,11 +4,13 @@ import React from 'react'
 import { useState } from 'react';
 import Cookies from 'js-cookie';
 import { CheckCircleOutlineRounded } from '@material-ui/icons';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
     const useStyle = makeStyles(theme => {
         return {
             green: {
-                color: 'green'
+                color: '#55CA36'
             },
             iconContainer: {
                 display: 'flex',
@@ -21,8 +23,19 @@ import { CheckCircleOutlineRounded } from '@material-ui/icons';
 function EditPassword() {
 
     const classes = useStyle()
+    const navigate = useNavigate()
 
     const Cookie = Cookies.get('idLoggedIn')
+
+    function sessionCheck() {
+        if (!Cookie) {
+            navigate('/');
+        }
+    }
+
+    useEffect(() => {
+      sessionCheck();
+    }, []);
 
     const [error, setError] = useState(false);
     const [wrongPassword, setWrongPassword] = useState(false);
