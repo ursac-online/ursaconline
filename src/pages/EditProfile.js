@@ -1,5 +1,5 @@
 
-import { Avatar, Badge, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormHelperText, Grid, Icon, makeStyles, MenuItem, Paper, TextField, Typography } from '@material-ui/core'
+import { Avatar, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormHelperText, Grid, Icon, makeStyles, MenuItem, TextField, Typography } from '@material-ui/core'
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -8,15 +8,25 @@ import { CheckCircleOutlineRounded, PhotoCameraRounded } from '@material-ui/icon
 
 const useStyle = makeStyles(theme => {
     return {
+        // MAIN CONTAINER
         root: {
+            boxShadow: theme.shadows[2],
+            padding: theme.spacing(4),
             '& .MuiTextField-root': {
                 marginBottom: theme.spacing(2)
             }
         },
+
+
+
+
+
+        // PROFILE PICTURE
         avatarSize: {
             width: theme.spacing(10),
             height: theme.spacing(10),
-            overflow: 'hidden'
+            overflow: 'hidden',
+            boxShadow: theme.shadows[3]
 
         },
         avatarContainer: {
@@ -27,6 +37,7 @@ const useStyle = makeStyles(theme => {
             backgroundColor: 'rgba(0,0,0,0.5)',
             position: 'relative',
             cursor: 'pointer',
+            marginBottom: theme.spacing(1),
             '&:hover': {
                 "& $overlay": {
                     opacity: 0.5,
@@ -34,7 +45,6 @@ const useStyle = makeStyles(theme => {
                 "& $avatarSize": {
                     filter: 'blur(1.1px)',
                 }
-
             }
         },
         overlay: {
@@ -50,23 +60,20 @@ const useStyle = makeStyles(theme => {
             height: '100%',
             color: 'white'
         },
-        previewText: {
-            backgroundColor: 'rgba(0,0,0,0.7)',
-            padding: theme.spacing(0.2),
-            borderRadius: '2px',
-            color: 'white'
-        },
-        btn: {
-            marginTop: theme.spacing(3)
-        },
-        green: {
-            color: 'green'
-        },
-        iconContainer: {
+
+
+
+
+
+        // DIALOG
+        dialogContainer: {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center'
-        }
+        },
+        green: {
+            color: '#55CA36'
+        },
     }
 })
 
@@ -75,8 +82,148 @@ const useStyle = makeStyles(theme => {
 export default function EditProfile() {
     const classes = useStyle();
     const navigate = useNavigate();
-
     const id = Cookies.get('idLoggedIn');
+
+
+
+
+    // SESSION CHECK
+    function sessionCheck() {
+        if (!id) {
+            navigate('/');
+        }
+    }
+
+
+
+
+
+
+
+
+
+    // RENDERS FETCHED DATA
+    const showStudent = () => {
+        const sendData = {
+            updateID: id
+        }
+        axios.post('https://ursacapi.000webhostapp.com/api/getStudentID.php', JSON.stringify(sendData))
+            .then(response => {
+                setData(response.data[0])
+                setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+            })
+            .catch(err => console.log(err))
+    }
+
+
+
+
+
+
+
+
+
+    // PROFILE PICTURE
+    const [isLoading, setisLoading] = useState(false);
+
+    const [loadingDialog, setLoadingDialog] = useState(false);
+
+    const [preview, setPreview] = useState(false);
+
+    const [profilePic, setProfilePic] = useState('');
+
+    const [uploadPhoto, setUploadPhoto] = useState(null);
+
+    const handleChangePicture = (event) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.readyState === 2) {
+                setProfilePic(reader.result);
+            }
+        }
+        reader.readAsDataURL(event.target.files[0])
+
+        let currentPhoto = event.target.files[0]
+
+        setPreview(true);
+
+        setUploadPhoto(currentPhoto);
+    }
+
+    const submitPhoto = async (e) => {
+        e.preventDefault()
+        let res = await uploadProfilePhoto(uploadPhoto, id)
+        console.log(res.data);
+        setProfilePic(res.data.url)
+        setisLoading(false)
+        setPreview(false)
+        setTimeout(() => {
+            setLoadingDialog(false)
+        }, 1500);
+
+    }
+
+    const uploadProfilePhoto = async (uploadPhoto, id) => {
+        const formdata = new FormData();
+
+        setLoadingDialog(true)
+        setisLoading(true);
+
+        formdata.append('profilePhoto', uploadPhoto);
+        
+        formdata.append('userid', id);
+
+        return await axios({
+            url: 'https://ursacapi.000webhostapp.com/api/changePhoto.php',
+            method: "POST",
+            headers: {
+                'content-type': 'multipart/form-data'
+            },
+            data: formdata
+        })
+    }
+
+
+
+
+
+
+
+
+
+    // FORM
+    const [data, setData] = useState({
+        studentID: '',
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        college: '',
+        course: '',
+        password: ''
+    })
+
+    const handleChange = (event) => {
+        const name = event.target.name;
+        const value = event.target.value;
+
+        setData(data => ({ ...data, [name]: value }));
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setPasswordDialog(true)
+        setSuccess(false)
+    };
+
+
+
+
+
+
+
+
+
+    // DIALOGS
     const [passwordDialog, setPasswordDialog] = useState(false);
 
     const [wrongPassword, setWrongPassword] = useState(false);
@@ -87,17 +234,11 @@ export default function EditProfile() {
 
     const [success, setSuccess] = useState(false);
 
-    const [preview, setPreview] = useState(false);
-
-    const [profilePic, setProfilePic] = useState('https://ursacapi.000webhostapp.com/api/files/174302-phil.png');
-
-    const changePic = () => {
-        setProfilePic('https://ursacapi.000webhostapp.com/api/files/827835-anonymous-v-for-vendetta-black-background-dark-wallpaper.jpg')
+    const handlePasswordChange = (event) => {
+        setUserPassword(event.target.value)
+        setWrongPassword(false)
+        setEmptyPassword(false)
     }
-
-
-
-
 
     const cancelSubmit = () => {
         setPasswordDialog(false)
@@ -134,118 +275,79 @@ export default function EditProfile() {
 
     }
 
-    const handlePasswordChange = (event) => {
-        setUserPassword(event.target.value)
-        setWrongPassword(false)
-        setEmptyPassword(false)
-    }
 
 
 
-    const showStudent = () => {
-        const sendData = {
-            updateID: id
-        }
-        axios.post('https://ursacapi.000webhostapp.com/api/getStudentID.php', JSON.stringify(sendData))
-            .then(response => {
-                setData(response.data[0])
-            })
-            .catch(err => console.log(err))
-    }
-
-
-
-
-    const [data, setData] = useState({
-        studentID: '',
-        firstName: '',
-        middleName: '',
-        lastName: '',
-        college: '',
-        course: '',
-        password: ''
-    })
-
-
-
-
-    const handleChange = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-
-        setData(data => ({ ...data, [name]: value }));
-    }
-
-
-
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setPasswordDialog(true)
-        setSuccess(false)
-    };
-
-
+    // RENDERER
     useEffect(() => {
         showStudent();
+        sessionCheck()
     }, []);
 
-    const handleChangePicture = (e) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (reader.readyState === 2) {
-                setProfilePic(reader.result);
-            }
-        }
-        reader.readAsDataURL(e.target.files[0])
 
-        setPreview(true);
-    }
 
 
 
     return (
 
         <Box className={classes.root}>
-
             <center>
 
-                <Grid container spacing={4} >
-                    <Grid item xs={6}>
-                        <input type="file" id='changeDP' style={{ display: 'none' }} accept="image/*"  onChange={handleChangePicture} />
 
-                        <label htmlFor="changeDP" className={classes.avatarContainer} >
-                            <Avatar className={classes.avatarSize} src={profilePic} />
 
-                            <Box className={classes.overlay}>
-                                <PhotoCameraRounded className={classes.camera} fontSize='large' />
-                            </Box>
-                        </label>
 
-                        {
-                            preview ?
 
-                                <Typography className={classes.previewText} variant='caption' >Preview</Typography>
+                {/* PROFILE PICTURE AND STUDENT ID */}
+                <Box mb={3}>
+                    <Grid container spacing={4} >
+                        <Grid item xs={6}>
 
-                                :
+                            <form onSubmit={submitPhoto}>
 
-                                null
+                                <input type="file" name='file' id='changeDP' style={{ display: 'none' }} accept="image/*" onChange={handleChangePicture} />
+                                <input type="text" name='id' value={id} style={{ display: 'none' }} onChange={handleChangePicture} />
 
-                        }
+                                <label htmlFor="changeDP" className={classes.avatarContainer} >
 
+                                    <Avatar className={classes.avatarSize} src={profilePic} />
+
+                                    <Box className={classes.overlay}>
+                                        <PhotoCameraRounded className={classes.camera} fontSize='large' />
+                                    </Box>
+
+                                </label>
+
+                                {
+                                    preview ?
+
+                                        <Button variant='contained' type='submit' name='submit' color='secondary' size='small'> Save </Button>
+
+                                        :
+
+                                        null
+                                }
+
+                            </form>
+
+                        </Grid>
+                        <Grid item xs={6}>
+
+                            <FormHelperText>Student ID: </FormHelperText>
+                            <Typography align='left'>{data.studentID}</Typography>
+
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-
-                        <FormHelperText>Student ID: </FormHelperText>
-                        <Typography align='left'  >{data.studentID}</Typography>
-
-                    </Grid>
-                </Grid>
-                {/* <Button onClick={changePic} >change picture</Button> */}
+                </Box>
 
 
-                {/* // STUDENT */}
-                <Box mt={7}>
+
+                <Divider className={classes.divider} />
+
+
+
+                {/* FORM */}
+                <Box mt={3}>
+
                     <form onSubmit={handleSubmit}>
 
                         <FormHelperText>First Name</FormHelperText>
@@ -265,11 +367,59 @@ export default function EditProfile() {
 
 
                         <Button className={classes.btn} fullWidth type='submit' name='submit' variant='contained' color='secondary'> Save Changes </Button>
-
                     </form>
                 </Box>
+
+
+                <Dialog
+                    open={loadingDialog}
+                >
+                    <DialogContent>
+
+                        {
+                            isLoading ?
+
+
+                                <Box className={classes.dialogContainer}>
+                                    <Box mb={1}>
+                                        <CircularProgress color='secondary' />
+                                    </Box>
+                                    <DialogContentText>
+                                        Saving...
+                                    </DialogContentText>
+                                </Box>
+
+                                :
+
+                                <Box className={classes.dialogContainer}>
+                                    <DialogContentText>
+                                        <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
+                                    </DialogContentText>
+                                    <DialogContentText>
+                                        Changes applied
+                                    </DialogContentText>
+                                </Box>
+
+                        }
+
+
+
+
+
+                    </DialogContent>
+
+                </Dialog>
+
+
+
+
+
             </center>
 
+
+
+
+            {/* DIALOG */}
             <Dialog
                 open={passwordDialog}
                 onClose={cancelSubmit}
@@ -278,10 +428,8 @@ export default function EditProfile() {
                     success ?
 
                         <Box>
-
-
-                            <DialogContent className={classes.iconContainer}>
-                            <DialogContentText>
+                            <DialogContent className={classes.dialogContainer}>
+                                <DialogContentText>
                                     <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
                                 </DialogContentText>
                                 <DialogContentText>
@@ -294,13 +442,13 @@ export default function EditProfile() {
 
                         </Box>
 
-
                         :
 
                         <Box>
                             <DialogTitle>
                                 Enter password to confirm
                             </DialogTitle>
+
 
                             <DialogContent>
                                 <TextField
@@ -321,10 +469,7 @@ export default function EditProfile() {
                         </Box>
                 }
 
-
-
             </Dialog>
-
         </Box>
     )
 }

@@ -2,7 +2,7 @@ import { React, useState } from 'react'
 import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, Card, CardContent, MenuItem, Box } from '@material-ui/core'
 import StudentPosts from '../components/StudentPosts'
 import { AttachFileRounded } from '@material-ui/icons'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { useEffect } from 'react'
 
@@ -20,24 +20,42 @@ const useStyle = makeStyles(theme => {
 })
 
 export default function StudentFeed({ }) {
-
   const classes = useStyle()
-  // const location = useLocation()
-  // const subject = location.search.slice(1)
-  // const subjectSpace = subject.replace("%20", " ")
+  const navigate = useNavigate()
   const CookieID = Cookies.get('idLoggedIn');
-  const CookieName = Cookies.get('userName');
-
-
-
   const { id } = useParams();
+
+
+
+
+
+  function sessionCheck() {
+    if (!CookieID) {
+      navigate('/');
+    }
+  }
+
+
+
+
+
+
+
+
+
+
   const [subjectInfo, setSubjectInfo] = useState({});
+
+  const [activities, setActivities] = useState([])
+
+  const [noPost, setNoPost] = useState(true);
+
+  const [img, setImg] = useState('');
 
   const getClassrooms = () => {
     const sendData = {
       updateID: id
     };
-
 
     axios.post('https://ursacapi.000webhostapp.com/api/getClassroomID.php', JSON.stringify(sendData))
       .then(response => {
@@ -49,8 +67,6 @@ export default function StudentFeed({ }) {
       })
   }
 
-
-
   const streamFeed = () => {
     axios.post('https://ursacapi.000webhostapp.com/api/getPost.php', JSON.stringify(id))
       .then((response) => {
@@ -59,36 +75,31 @@ export default function StudentFeed({ }) {
         } else {
           setActivities(response.data)
           setNoPost(false);
-
         }
-
       })
       .catch(error => {
         console.log(error);
       })
   }
 
-
-  useEffect(() => {
-    streamFeed();
-    getClassrooms();
-    getFiles();
-    // user();
-  }, []);
-
-  const [img, setImg] = useState('');
   const getFiles = () => {
-
     axios.post('https://ursacapi.000webhostapp.com/api/getFile.php', JSON.stringify(id))
-    .then(response => {
-      setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
-      console.log(response.data[0].files);
-    })
-    .catch(err => console.log(err))
+      .then(response => {
+        setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
+        console.log(response.data[0].files);
+      })
+      .catch(err => console.log(err))
   }
 
 
-  const [noPost, setNoPost] = useState(true);
+
+
+
+
+
+
+
+
   const [postData, setPostData] = useState({
     title: '',
     body: '',
@@ -102,19 +113,8 @@ export default function StudentFeed({ }) {
     setPostData(postData => ({ ...postData, [name]: value }));
   }
 
-
-  const [activities, setActivities] = useState([])
-
-  const [newFile, setNewFile] = useState(null);
-  const handleFileChange = (event) => {
-    // let files = event.target.files[0];
-   let currentFile = event.target.files[0];
-
-    setNewFile(currentFile)
-  }
-
   const handlePost = async (e) => {
-e.preventDefault()
+    e.preventDefault()
     // const sendData = {
     //   title: postData.title,
     //   body: postData.body,
@@ -125,14 +125,31 @@ e.preventDefault()
     // };
 
 
-    let res = await uploadFile(newFile) 
+    let res = await uploadFile(newFile)
     console.log(res.data);
-    
-      // .then(response => {
-      //   console.log(response.data);
-      // })
-      // .catch(err => console.log(err))
-    
+
+    // .then(response => {
+    //   console.log(response.data);
+    // })
+    // .catch(err => console.log(err))
+
+  }
+
+
+
+
+
+
+
+  
+  
+
+  const [newFile, setNewFile] = useState(null);
+  const handleFileChange = (event) => {
+    // let files = event.target.files[0];
+    let currentFile = event.target.files[0];
+
+    setNewFile(currentFile)
   }
 
   const uploadFile = async (newFile) => {
@@ -150,6 +167,17 @@ e.preventDefault()
 
 
   
+
+
+  useEffect(() => {
+    streamFeed();
+    getClassrooms();
+    getFiles();
+    sessionCheck();
+  }, []);
+
+
+
 
 
   return (
@@ -194,7 +222,7 @@ e.preventDefault()
                     multiline
                   />
 
-                  <input  onChange={handleFileChange} type="file" name='file' id='attach-file' />
+                  <input onChange={handleFileChange} type="file" name='file' id='attach-file' />
                   <label htmlFor="attach-file">
                     <IconButton component='span'><Tooltip title='Attach a file' placement='right-start' ><AttachFileRounded /></Tooltip></IconButton>
                   </label>
