@@ -1,53 +1,55 @@
-import { Button, Container, Grid, makeStyles, Paper } from '@material-ui/core'
-import { React, useRef, useState } from 'react'
-import Webcam from 'react-webcam'
+import React, { useContext } from 'react';
+import { Grid, Typography, Paper, makeStyles, Dialog, Box } from '@material-ui/core';
 
-const videoConstraints = {
-    width: 1280,
-    height: 720,
-    facingMode: "user"
+import { Context } from '../Context';
+
+const useStyles = makeStyles((theme) => ({
+  video: {
+    width: '100%',
+    [theme.breakpoints.down('xs')]: {
+      width: '300px',
+    },
+  },
+  container: {
+    width: '100%',
+    maxWidth: '1400px',
+    boxShadow: theme.shadows[5]
+  },
+  gridContainer: {
+    justifyContent: 'center',
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+    },
+  },
+  paper: {
+    padding: '10px'
+  },
+}));
+
+const VideoStream = () => {
+  const { name, callAccepted, myVideo, userVideo, callEnded, stream, call } = useContext(Context);
+  const classes = useStyles();
+
+  return (
+    <Grid container justifyContent='center' spacing={10}>
+      {stream && (
+        <Box mb={5} mt={2} p={5} className={classes.container}>
+          <Grid item xs={12}>
+              <Typography variant="h5" gutterBottom>{name || 'Phil Cajurao'}</Typography>
+              <video playsInline muted ref={myVideo} autoPlay className={classes.video} />
+          </Grid>
+        </Box>
+      )}
+      {callAccepted && !callEnded && (
+        <Box mb={5} p={5} className={classes.container}>
+          <Grid item xs={12}>
+              <Typography variant="h5" gutterBottom>{call.name || 'Phil Cajurao'}</Typography>
+              <video playsInline muted ref={userVideo} autoPlay className={classes.video} />
+          </Grid>
+        </Box>
+      )}
+    </Grid>
+  );
 };
 
-const useStyle = makeStyles(theme => {
-    return {
-        paper: {
-            padding: '20px'
-        }
-    }
-})
-
-export default function VideoStream() {
-    const classes = useStyle()
-    const webref = useRef(true)
-    const [showImage, setShowImage] = useState(null)
-    const handleSnap = () => {
-       let img = webref.current.getScreenShot()
-       setShowImage(img)
-    }
-    return (
-        <div>
-            <Container>
-            <Paper className={classes.paper} elevation={2}>
-                <Container>
-                    <Grid container justifyContent='center' alignContent='center' alignItems='center'>
-                        <Grid item>
-                            <Container>
-                <Webcam
-                
-                    audio={false}
-                    height='auto'
-                    screenshotFormat="image/jpeg"
-                    width={450}
-                    videoConstraints={videoConstraints} />
-                    </Container>
-                <Button onClick={handleSnap} variant='contained'color='secondary' fullWidth >Snap</Button>
-                
-                <img src={showImage} alt="" />
-                </Grid>
-                </Grid>
-                </Container>
-            </Paper>
-            </Container>
-        </div>
-    )
-}
+export default VideoStream;

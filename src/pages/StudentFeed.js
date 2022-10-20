@@ -1,7 +1,7 @@
 import { React, useState } from 'react'
-import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, Card, CardContent, MenuItem, Box } from '@material-ui/core'
+import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, Card, CardContent, MenuItem, Box, List, ListItem, ListItemText, ListItemIcon, Divider } from '@material-ui/core'
 import StudentPosts from '../components/StudentPosts'
-import { AttachFileRounded } from '@material-ui/icons'
+import { AttachFileRounded, DescriptionRounded, ImageAspectRatioRounded, ImageRounded, InsertDriveFileRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { useEffect } from 'react'
@@ -12,9 +12,6 @@ const useStyle = makeStyles(theme => {
   return {
     paper: {
       padding: theme.spacing(2)
-    },
-    input: {
-      display: 'none'
     }
   }
 })
@@ -86,11 +83,9 @@ export default function StudentFeed({ }) {
     axios.post('https://ursacapi.000webhostapp.com/api/getFile.php', JSON.stringify(id))
       .then(response => {
         setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
-        console.log(response.data[0].files);
       })
       .catch(err => console.log(err))
   }
-
 
 
 
@@ -141,16 +136,29 @@ export default function StudentFeed({ }) {
 
 
 
-  
-  
 
+  const [filePreview, setFilePreview] = useState([]);
+
+  const [fileOnChange, setFileOnChange] = useState(false);
   const [newFile, setNewFile] = useState(null);
   const handleFileChange = (event) => {
     // let files = event.target.files[0];
-    let currentFile = event.target.files[0];
+    let currentFile = event.target.files;
+
+    setFileOnChange(true)
+
+    for (let file of currentFile) {
+      setFilePreview(filePreview => [...filePreview, file])
+      console.log(file);
+    }
+
+
+
 
     setNewFile(currentFile)
   }
+
+
 
   const uploadFile = async (newFile) => {
     const formdata = new FormData();
@@ -166,7 +174,7 @@ export default function StudentFeed({ }) {
   }
 
 
-  
+
 
 
   useEffect(() => {
@@ -222,10 +230,50 @@ export default function StudentFeed({ }) {
                     multiline
                   />
 
-                  <input onChange={handleFileChange} type="file" name='file' id='attach-file' />
+                  <input onChange={handleFileChange} style={{ display: 'none' }} type="file" name='file' multiple id='attach-file' />
                   <label htmlFor="attach-file">
                     <IconButton component='span'><Tooltip title='Attach a file' placement='right-start' ><AttachFileRounded /></Tooltip></IconButton>
                   </label>
+
+                  {
+                    fileOnChange ?
+                    
+                      <Box ml={2}>
+                        <List>
+                          {
+                            filePreview.map(file => (
+                              <ListItem key={file.name} dense>
+                                <ListItemIcon>
+                                  {
+                                    file.type === 'application/pdf' ?
+                                      <PictureAsPdfRounded />
+                                      :
+                                      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ?
+                                      <DescriptionRounded />
+                                      :
+                                      file.type === 'video/x-matroska' ?
+                                      <MovieCreationRounded />
+                                      :
+                                      file.type === 'image/jpeg' || 'image/jpg' || 'image/png' ?
+                                      <ImageRounded />
+                                      :
+                                      <InsertDriveFileRounded />
+                                  }
+                                </ListItemIcon>
+                                <ListItemText>
+                                  {file.name}
+                                </ListItemText>
+                              </ListItem>
+                            ))
+                          }
+                        </List>
+                      </Box>
+
+                      :
+
+                      null
+
+                  }
 
                   <Button variant='contained' color='secondary' type='submit' size='large' fullWidth disableElevation>Post</Button>
 

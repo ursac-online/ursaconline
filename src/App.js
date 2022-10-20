@@ -14,7 +14,7 @@ import TeacherFeed from './pages/TeacherFeed';
 
 import StudentLayout from './components/StudentLayout';
 import Quiz from './pages/Quiz';
-import VideoStream from './components/VideoStream';
+import VideoApp from './components/VideoApp';
 
 import BasicTable from './components/test/BasicTable';
 import CreateClassroom from './pages/CreateClassroom';
@@ -124,7 +124,7 @@ function App() {
 
           <Route path='/quiz' element={<Quiz />} />
 
-          <Route path='/videoStream' element={<VideoStream />} />
+          <Route path='/videoApp' element={<VideoApp />} />
 
           <Route path='/basicTable' element={<BasicTable />} />
 
