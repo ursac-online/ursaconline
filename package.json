@@ -1,6 +1,6 @@
 {
   "homepage": "http://ursac-online.github.io/",
-  "name": "project-lms",
+  "name": "ursaconline",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -14,13 +14,17 @@
     "firebase": "^9.9.1",
     "formik": "^2.2.9",
     "js-cookie": "^3.0.1",
+    "peerjs": "^1.4.7",
     "react": "^18.1.0",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-table": "^7.8.0",
     "react-webcam": "^7.0.1",
     "react-yup": "^1.24.1",
+    "simple-peer": "^9.11.1",
+    "socket.io-client": "^4.5.3",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"
   },
