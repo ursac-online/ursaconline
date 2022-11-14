@@ -23,23 +23,6 @@ const useStyle = makeStyles(theme => {
       '& .MuiToolbar-root': {
         // boxShadow: 'rgb(35 68 101 / 5%) 0px 4px 16px, rgb(35 68 101 / 5%) 0px 4px 4px;',
         boxShadow: 'rgb(35 68 101 / 5%) 0px 4px 16px, rgb(35 68 101 / 5%) 0px 4px 4px;'
-      },
-
-      '& .MuiCard-root': {
-        boxShadow: '',
-        transition: 'all ease-out 0.1s',
-        [theme.breakpoints.down('xs')]: {
-          margin: '0 50px'
-        },
-
-        '&:hover': {
-          transform: 'scale(1.01)',
-          boxShadow: '2px 5px 7px rgba(0, 0, 0, 0.25)',
-          transition: 'all ease-out 0.1s',
-          [theme.breakpoints.down('md')]: {
-            transform: 'none'
-          }
-        }
       }
     },
 
@@ -47,7 +30,8 @@ const useStyle = makeStyles(theme => {
     page: {
       background: '#f9fbfd',
       width: '100%',
-      padding: theme.spacing(1)
+      padding: theme.spacing(1),
+      marginBottom: theme.spacing(5)
     },
 
 
@@ -134,6 +118,7 @@ export default function Layout({ children }) {
   const classes = useStyle()
   const navigate = useNavigate()
   const [openDrawer, setOpenDrawer] = useState(false)
+  const [profilePic, setProfilePic] = useState('');
   const Cookie = Cookies.get('idLoggedIn');
 
   const showStudentsInfo = () => {
@@ -142,6 +127,7 @@ export default function Layout({ children }) {
             if (response.data) {
                 Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
                 Cookies.set('userFirstName', response.data[0].firstName)
+                setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
             }
 
         })
@@ -253,7 +239,7 @@ useEffect(() => {
 
             <Typography className={classes.whiteText} >{userFirstName}</Typography>
           <IconButton onClick={openMenu}>
-            <Avatar src='https://ursacapi.000webhostapp.com/api/files/174302-phil.png' />
+            <Avatar src={profilePic} />
           </IconButton>
         </Toolbar>
       </AppBar>

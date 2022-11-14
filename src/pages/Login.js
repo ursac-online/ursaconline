@@ -83,7 +83,7 @@ const useStyle = makeStyles(theme => {
         },
         loadingImage: {
             width: '200px',
-            margin: 'auto'
+            margin: 'auto',
         }
 
     }
@@ -97,7 +97,7 @@ export default function Login() {
     function sessionCheck() {
         if (Cookies.get('idLoggedIn')) {
             navigate('/studentDashboard')
-        } else if (Cookies.get('teacherID')) {
+        } else if (Cookies.get('instructorID')) {
             navigate('/teacherDashboard')
         } else if (Cookies.get('adminID')) {
             navigate('/admin')
@@ -143,7 +143,7 @@ export default function Login() {
             {isPending &&
                 <Fade in={true} >
                     <div className={classes.loading}>
-                        <Icon><img src={urslogo} className={classes.loadingImage} /></Icon>
+                        <img src={urslogo} className={classes.loadingImage} />
                     </div>
                 </Fade>
             }

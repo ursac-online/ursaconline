@@ -26,6 +26,9 @@ const useStyle = makeStyles(theme => {
         btn: {
             width: '100%',
             margin: '12px 0'
+        },
+        changeLogin: {
+            cursor: 'pointer'
         }
     }
 });
@@ -33,6 +36,8 @@ const useStyle = makeStyles(theme => {
 export default function StudentLogin({handleChangeToTeacher}) {
     const navigate = useNavigate();
     const classes = useStyle();
+
+    const [error, setError] = useState(false);
 
     const [data, setData] = useState({
         studentID: '',
@@ -43,6 +48,7 @@ export default function StudentLogin({handleChangeToTeacher}) {
         const name = event.target.name;
         const value = event.target.value;
 
+        setError(false)
         setData(data => ({ ...data, [name]: value }));
     }
 
@@ -65,7 +71,7 @@ export default function StudentLogin({handleChangeToTeacher}) {
                 });
 
                 if (response.data === 'Invalid') {
-                    alert('Wrong Credentials');
+                    setError(true);
                 } else {
                     navigate('/studentDashboard');
                 }
@@ -111,6 +117,7 @@ export default function StudentLogin({handleChangeToTeacher}) {
                     name='studentID'
                     variant='outlined'
                     type='text'
+                    error={error}
                     autoComplete='off'
                     fullWidth
                     required
@@ -123,6 +130,8 @@ export default function StudentLogin({handleChangeToTeacher}) {
                     name='password'
                     variant='outlined'
                     type='password'
+                    helperText={error && 'Wrong Credentials!'}
+                    error={error}
                     fullWidth
                     required
                 />
@@ -146,7 +155,7 @@ export default function StudentLogin({handleChangeToTeacher}) {
                         </Typography>
                     </div>
                     <div>
-                        <Link onClick={handleChangeToTeacher}>
+                        <Link className={classes.changeLogin} onClick={handleChangeToTeacher}>
                             <Typography variant='caption'>
                                 Teacher Login.
                             </Typography>

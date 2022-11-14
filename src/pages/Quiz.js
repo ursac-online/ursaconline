@@ -1,5 +1,6 @@
 import { Box, Button, Card, CardContent, CardHeader, Container, Dialog, DialogContent, DialogTitle, Grid, List, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
-import React from 'react'
+import axios from 'axios'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import photo from '../images/quizBackgroundPhoto.png'
 
@@ -28,7 +29,7 @@ const useStyle = makeStyles(theme => {
 const choices = [
     {
         question: 'What is something you hit with a hammer?',
-        answerChoice: [
+        answerChoices: [
             { answer: 'Screw', isCorrect: false },
             { answer: 'Nail', isCorrect: true },
             { answer: 'Wall', isCorrect: false },
@@ -37,7 +38,7 @@ const choices = [
     },
     {
         question: '1 + 1 = ?',
-        answerChoice: [
+        answerChoices: [
             { answer: '2', isCorrect: true },
             { answer: '3', isCorrect: false },
             { answer: '4', isCorrect: false },
@@ -46,7 +47,7 @@ const choices = [
     },
     {
         question: '2 x 2 = ?',
-        answerChoice: [
+        answerChoices: [
             { answer: '20', isCorrect: false },
             { answer: '5', isCorrect: false },
             { answer: '4', isCorrect: true },
@@ -55,7 +56,7 @@ const choices = [
     },
     {
         question: '100 / 0 = ?',
-        answerChoice: [
+        answerChoices: [
             { answer: '1', isCorrect: false },
             { answer: '100', isCorrect: false },
             { answer: '0', isCorrect: false },
@@ -65,7 +66,29 @@ const choices = [
 
 ]
 
-export default function Quiz() {
+ const Quiz =  ()  => {
+
+     const [quizs, setQuizs] = useState([]);
+     const [updated, setUpdated] = useState(false);
+    
+   
+    
+
+    const getQuiz =  async() => {
+
+        let res = await fetchQuiz()
+        setQuizs(res.data)
+        setUpdated(true)
+        
+   }
+
+   const fetchQuiz = async () => {
+    return await axios({
+        url: 'https://ursacapi.000webhostapp.com/api/getQuiz.php',
+        method: "GET"
+      })
+   }
+
     const classes = useStyle()
 
 
@@ -85,7 +108,7 @@ export default function Quiz() {
         }
 
         const nextQuestion = currentQuestion + 1
-        if (nextQuestion < choices.length) {
+        if (nextQuestion < quizs?.length) {
             setCurrentQuestion(nextQuestion)
         } else {
             setAllDone(true)
@@ -110,10 +133,10 @@ export default function Quiz() {
             if (numberOfWarning === 2) {
                 setConsequence(true)
             } else {
-                setNumberOfWarning(numberOfWarning + 1)
+                // setNumberOfWarning(numberOfWarning + 1)
             }
         } else {
-            setSwitchTab(true)
+            // setSwitchTab(true)
         }
     }
 
@@ -122,16 +145,23 @@ export default function Quiz() {
         if (numberOfWarning === 2) {
             setConsequence(true)
         } else {
-            setNumberOfWarning(numberOfWarning + 1)
+            // setNumberOfWarning(numberOfWarning + 1)
         }
 
-        setSwitchTab(true)
+        // setSwitchTab(true)
     })
+
+    
+    useEffect(() => {
+        getQuiz()
+    }, []);
 
 
     const reload = () => { window.location.reload(true) }
     const disableRightClick = document.addEventListener('contextmenu', event => event.preventDefault());
-    let name = `Quiz ${currentQuestion + 1}/${choices.length}`
+    let name = `Quiz ${currentQuestion + 1}/${quizs?.length}`
+    let choi =  quizs[currentQuestion]?.answerChoice
+    console.log((updated ? JSON.parse(choi)[0].answer : null));
 
     return (
         <div className={classes.root}>
@@ -139,7 +169,7 @@ export default function Quiz() {
                 Open Quiz
             </Button>
 
-            <Dialog classes={{ paper: classes.dialog }} open={quiz} onClose={closeQuiz} fullScreen>
+                <Dialog classes={{ paper: classes.dialog }} open={quiz} onClose={closeQuiz} fullScreen>
                 <Typography variant='h4' className={classes.title}>Finals Examination</Typography>
                 <DialogContent>
                     <Box>
@@ -149,7 +179,7 @@ export default function Quiz() {
                                 <Typography variant='h5' gutterBottom>
                                     Sorry! You are now <b>disqualified</b> from the exam because you did not obeyed the rules.
                                     <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                                        You scored 0 out of {choices.length} items.
+                                        You scored 0 out of {quizs?.length} items.
                                     </div>
                                 </Typography>
                                 <Button variant='contained' fullWidth color='secondary' onClick={closeQuiz}>End Exam</Button>
@@ -171,8 +201,8 @@ export default function Quiz() {
                                             <CardContent>
                                                 {allDone ? (
                                                     <Grid item xs={12}>
-                                                        <Typography gutterBottom textAlign='center'>
-                                                            You scored {score} out of {choices.length} items
+                                                        <Typography gutterBottom>
+                                                            You scored {score} out of {quizs?.length} items
                                                         </Typography>
                                                         <Button onClick={reload} fullWidth variant='contained' color='secondary'>Reset</Button>
                                                     </Grid>
@@ -182,16 +212,22 @@ export default function Quiz() {
 
                                                         <Grid item xs={12} lg={6}>
                                                             <Typography>
-                                                                {currentQuestion + 1}. {choices[currentQuestion].question}
+                                                                {currentQuestion + 1}. {quizs[currentQuestion]?.questions}
                                                             </Typography>
                                                         </Grid>
 
 
                                                         <Grid item xs={12} lg={6}>
                                                             <List>
-                                                                {choices[currentQuestion].answerChoice.map((choice) => (
-                                                                    <ListItem onClick={() => handleAnsweredQuestion(choice.isCorrect)} button className={classes.answers} >{choice.answer}</ListItem>
-                                                                ))}
+                                                                { updated?
+                                                                JSON.parse(choi)?.map((choice) => (
+                                                                    <ListItem onClick={() => handleAnsweredQuestion(JSON.parse(choice.isCorrect))} button className={classes.answers} >{choice.answer}</ListItem>
+                                                                    
+                                                                ))
+                                                                :
+                                                                null
+                                                            
+                                                            }
                                                             </List>
                                                         </Grid>
 
@@ -206,6 +242,10 @@ export default function Quiz() {
                     </Box>
                 </DialogContent>
             </Dialog >
+
+            
         </div >
     )
 }
+
+export default Quiz;

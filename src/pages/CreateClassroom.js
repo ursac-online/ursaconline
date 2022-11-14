@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import Container from '@material-ui/core/Container'
@@ -20,14 +20,34 @@ const useStyles = makeStyles({
 export default function CreateClassroom() {
   const classes = useStyles()
   const navigate = useNavigate()
-  const Cookie = Cookies.get('teacherID');
+  const Cookie = Cookies.get('instructorID');
   const [titleError, setTitleError] = useState('')
   const [instructorError, setInstructorError] = useState('')
   const [yearSectionError, setYearSectionError] = useState('')
 
+  const showInstructorsInfo = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getInstructors.php', JSON.stringify(Cookie))
+        .then((response) => {
+            if (response.data) {
+                Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
+                Cookies.set('userFirstName', response.data[0].firstName)
+                // setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+            }
+
+        })
+        .catch(error => {
+            console.log(error);
+        })
+}
+
+
+useEffect(() => {
+  showInstructorsInfo();
+}, []);
+
   const [data, setData] = useState({
     title: '',
-    instructor: '',
+    instructor: Cookies.get('userName'),
     yearSection: ''
   })
 
@@ -45,8 +65,7 @@ export default function CreateClassroom() {
       title: data.title,
       instructor: data.instructor,
       yearSection: data.yearSection,
-      instructorID: 2,
-      classroomCode: 130
+      instructorID: 2
     }
 
 
@@ -95,6 +114,7 @@ export default function CreateClassroom() {
             color="secondary"
             fullWidth
             helperText={instructorError}
+            disabled
           />
           <TextField className={classes.field}
             onChange={handleChange}

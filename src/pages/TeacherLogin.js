@@ -26,6 +26,9 @@ const useStyle = makeStyles(theme => {
         btn: {
             width: '100%',
             margin: '12px 0'
+        },
+        changeLogin: {
+            cursor: 'pointer'
         }
     }
 });
@@ -33,6 +36,9 @@ const useStyle = makeStyles(theme => {
 export default function TeacherLogin({handleChangeToStudent}) {
     const navigate = useNavigate();
     const classes = useStyle();
+
+    const [error, setError] = useState(false);
+
 
     const [data, setData] = useState({
         instructorID: '',
@@ -43,6 +49,7 @@ export default function TeacherLogin({handleChangeToStudent}) {
         const name = event.target.name;
         const value = event.target.value;
 
+        setError(false)
         setData(data => ({ ...data, [name]: value }));
     }
 
@@ -57,14 +64,14 @@ export default function TeacherLogin({handleChangeToStudent}) {
         axios.post('https://ursacapi.000webhostapp.com/api/teacherLogin.php', JSON.stringify(sendData))
             .then((response) => {
 
-                Cookies.set('teacherID', response.data, {
+                Cookies.set('instructorID', response.data, {
                     expires: 1,
                     path: '/',
                     sameSite: 'strict'
                 });
 
                 if (response.data === 'Invalid') {
-                    alert('Wrong Credentials');
+                    setError(true);
                 } else {
                     navigate('/teacherDashboard');
                 }
@@ -110,6 +117,7 @@ export default function TeacherLogin({handleChangeToStudent}) {
                     name='instructorID'
                     variant='outlined'
                     type='text'
+                    error={error}
                     autoComplete='off'
                     fullWidth
                     required
@@ -122,6 +130,8 @@ export default function TeacherLogin({handleChangeToStudent}) {
                     name='password'
                     variant='outlined'
                     type='password'
+                    helperText={error && 'Wrong Credentials!'}
+                    error={error}
                     fullWidth
                     required
                 />
@@ -145,7 +155,7 @@ export default function TeacherLogin({handleChangeToStudent}) {
                         </Typography>
                     </div>
                     <div>
-                        <Link onClick={handleChangeToStudent}>
+                        <Link className={classes.changeLogin} onClick={handleChangeToStudent}>
                             <Typography variant='caption'>
                                 Student Login.
                             </Typography>

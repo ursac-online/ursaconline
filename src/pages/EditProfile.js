@@ -160,6 +160,7 @@ export default function EditProfile() {
         setTimeout(() => {
             setLoadingDialog(false)
         }, 1500);
+        window.location.reload()
 
     }
 
@@ -265,7 +266,7 @@ export default function EditProfile() {
                         setSuccess(true);
                         setUserPassword('');
                         setPreview(false);
-                        setProfilePic('https://ursacapi.000webhostapp.com/api/files/174302-phil.png')
+                        showStudent();
                     } else {
                         setWrongPassword(true)
                     }
@@ -360,10 +361,10 @@ export default function EditProfile() {
                         <TextField variant='outlined' placeholder='Last Name' type="text" name='lastName' value={data.lastName} onChange={handleChange} fullWidth required />
 
                         <FormHelperText>College</FormHelperText>
-                        <TextField variant='outlined' placeholder='College' type="text" name='college' value={data.college} onChange={handleChange} fullWidth required />
+                        <TextField variant='outlined' placeholder='College' type="text" name='college' value={data.college} onChange={handleChange} fullWidth required disabled/>
 
                         <FormHelperText>Course</FormHelperText>
-                        <TextField variant='outlined' placeholder='Course' type="text" name='course' value={data.course} onChange={handleChange} fullWidth required multiline />
+                        <TextField variant='outlined' placeholder='Course' type="text" name='course' value={data.course} onChange={handleChange} fullWidth required multiline disabled/>
 
 
                         <Button className={classes.btn} fullWidth type='submit' name='submit' variant='contained' color='secondary'> Save Changes </Button>

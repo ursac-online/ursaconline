@@ -11,7 +11,7 @@ const useStyle = makeStyles(theme => {
     return {
         root: {
             display: 'flex'
-        }, 
+        },
         loading: {
             marginTop: theme.spacing(20)
         }
@@ -37,7 +37,7 @@ export default function StudentDashboard() {
         }
     }
 
-    
+
 
 
     const [subjects, setSubjects] = useState([]);
@@ -71,7 +71,7 @@ export default function StudentDashboard() {
         <Box>
             {
                 isLoading ?
-                
+
                     <CircularProgress className={classes.loading} color='secondary' />
 
                     :
@@ -95,12 +95,9 @@ export default function StudentDashboard() {
                                         ))}
                                     </Grid>
                                 </Container>
-
                         }
                     </Box>
-
             }
-
         </Box>
     )
 }
