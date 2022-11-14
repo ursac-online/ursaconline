@@ -1,16 +1,32 @@
-import { Box, Container, Grid, Menu, MenuItem, Typography } from '@material-ui/core'
+import { Box, CircularProgress, Container, Grid, makeStyles, Menu, MenuItem, Typography } from '@material-ui/core'
 import React, { useEffect, useState } from 'react'
-import SubjectCards from '../components/SubjectCards'
+import ClassroomCards from '../components/ClassroomCards'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 import Cookies from 'js-cookie'
 
 
+const useStyle = makeStyles(theme => {
+    return {
+        root: {
+            display: 'flex'
+        },
+        loading: {
+            marginTop: theme.spacing(20)
+        }
+
+    }
+});
+
 
 export default function TeacherDashboard() {
+
+    const classes = useStyle();
+
     const navigate = useNavigate();
-    const Cookie = Cookies.get('teacherID');
+    const [isLoading, setIsLoading] = useState(true);
+    const Cookie = Cookies.get('instructorID');
 
     const [noClassroom, setNoClassroom] = useState(true);
 
@@ -20,66 +36,66 @@ export default function TeacherDashboard() {
         }
     }
 
-    function showTeachersInfo() {
-        axios.post('http://localhost:80/api/getInstructors.php', Cookie)
-            .then((response) => {
-                if (response.data) {
-                    Cookies.set('userInfo', response.data[0].firstName + ' ' + response.data[0].lastName)
-                }
-
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
-
-
-    useEffect(() => {
-        // sessionCheck();
-        showTeachersInfo()
-        showClassrooms();
-    }, []);
-
     const [subjects, setSubjects] = useState([]);
-
-    function showClassrooms() {
-        axios.post('http://localhost:80/api/getClassrooms.php', Cookie)
+    const showClassrooms = () => {
+        axios.post('https://ursacapi.000webhostapp.com/api/getCreatedClassrooms.php', JSON.stringify(Cookie))
             .then((response) => {
-                if(response.data == 0) {
+                if (response.data == 0) {
                     setNoClassroom(true);
                 } else {
                     setSubjects(response.data)
                     setNoClassroom(false);
+                    setIsLoading(false)
                 }
             })
+            .catch(err => console.log(err))
     }
+
+
+
+    useEffect(() => {
+        sessionCheck();
+        showClassrooms();
+    }, []);
+
 
 
     return (
         <Box>
             {
-                noClassroom ?
+                isLoading ?
 
-                    <MenuItem disabled>
-                        You have no classroom yet.
-                    </MenuItem>
+                    <CircularProgress className={classes.loading} color='secondary' />
 
                     :
 
-                    <Container >
+                    <Box>
+                        {
+                            noClassroom ?
 
-                        <Grid container spacing={7}>
-                            <div>{subjects.subjectName}</div>
-                            {subjects.map(subject => (
-                                <Grid item xs={12} sm={6} lg={3} key={subject.id}>
-                                    <SubjectCards subject={subject} />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Container>
+                                <MenuItem disabled>
+                                    You have no classroom yet.
+                                </MenuItem>
 
+                                :
+
+                                <Container >
+
+                                    <Grid container spacing={7}>
+                                        <div>{subjects.subjectName}</div>
+                                        {subjects.map(subject => (
+                                            <Grid item xs={12} sm={6} lg={3} key={subject.id}>
+                                                <ClassroomCards subject={subject} />
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </Container>
+
+                        }
+
+                    </Box>
             }
-
         </Box>
+
     )
 }

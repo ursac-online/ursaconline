@@ -26,7 +26,7 @@ const useStyle = makeStyles(theme => {
         
       width: '270px',
       maxWidth: theme.spacing(23)
-      }
+      },
     },
     avatar: {
       background: '#162276',
@@ -43,7 +43,21 @@ const useStyle = makeStyles(theme => {
     },
     card: {
       height: theme.spacing(35),
-      width: theme.spacing(35)
+      width: theme.spacing(35),
+      boxShadow: '',
+      transition: 'all ease-out 0.1s',
+      [theme.breakpoints.down('xs')]: {
+        margin: '0 50px'
+      },
+
+      '&:hover': {
+        transform: 'scale(1.01)',
+        boxShadow: '2px 5px 7px rgba(0, 0, 0, 0.25)',
+        transition: 'all ease-out 0.1s',
+        [theme.breakpoints.down('md')]: {
+          transform: 'none'
+        }
+      }
     }
   }
 })

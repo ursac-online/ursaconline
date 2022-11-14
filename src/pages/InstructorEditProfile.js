@@ -82,7 +82,7 @@ const useStyle = makeStyles(theme => {
 export default function EditProfile() {
     const classes = useStyle();
     const navigate = useNavigate();
-    const id = Cookies.get('idLoggedIn');
+    const id = Cookies.get('instructorID');
 
 
 
@@ -107,7 +107,7 @@ export default function EditProfile() {
         const sendData = {
             updateID: id
         }
-        axios.post('https://ursacapi.000webhostapp.com/api/getStudentID.php', JSON.stringify(sendData))
+        axios.post('https://ursacapi.000webhostapp.com/api/getInstructorID.php', JSON.stringify(sendData))
             .then(response => {
                 setData(response.data[0])
                 setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
@@ -175,7 +175,7 @@ export default function EditProfile() {
         formdata.append('userid', id);
 
         return await axios({
-            url: 'https://ursacapi.000webhostapp.com/api/changePhoto.php',
+            url: 'https://ursacapi.000webhostapp.com/api/changePhotoInstructor.php',
             method: "POST",
             headers: {
                 'content-type': 'multipart/form-data'
@@ -260,7 +260,7 @@ export default function EditProfile() {
                 college: data.college
             }
 
-            axios.post('https://ursacapi.000webhostapp.com/api/individualUpdateStudent.php', JSON.stringify(sendData))
+            axios.post('https://ursacapi.000webhostapp.com/api/individualUpdateInstructor.php', JSON.stringify(sendData))
                 .then(response => {
                     if (response.data == 'Success') {
                         setSuccess(true);
@@ -333,8 +333,8 @@ export default function EditProfile() {
                         </Grid>
                         <Grid item xs={6}>
 
-                            <FormHelperText>Student ID: </FormHelperText>
-                            <Typography align='left'>{data.studentID}</Typography>
+                            <FormHelperText>Instructor ID: </FormHelperText>
+                            <Typography align='left'>{data.instructorID}</Typography>
 
                         </Grid>
                     </Grid>

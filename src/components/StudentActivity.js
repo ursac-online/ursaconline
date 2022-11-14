@@ -56,7 +56,6 @@ function StudentActivity() {
     }, []);
 
 
-
     return (
         <Box>
             <IconButton onClick={() => navigate(-1)} >

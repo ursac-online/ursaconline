@@ -33,6 +33,9 @@ import JoinClass from './components/JoinClass';
 import StudentActivity from './components/StudentActivity';
 import EditPassword from './pages/EditPassword';
 import EditProfile from './pages/EditProfile';
+import InstructorEditPassword from './pages/InstructorEditPassword';
+import InstructorEditProfile from './pages/InstructorEditProfile';
+import CreateQuiz from './pages/CreateQuiz';
 
 const theme = createTheme({
   typography: {
@@ -75,6 +78,10 @@ function App() {
 
           <Route path='/studentFeed/:id' element={<StudentLayout><StudentFeed /></StudentLayout>} />
 
+          <Route path='/editPassword' element={<StudentLayout><EditPassword /></StudentLayout>} />
+
+          <Route path='/editProfile' element={<StudentLayout><EditProfile /></StudentLayout>} />
+
 
 
 
@@ -82,7 +89,11 @@ function App() {
           {/* TEACHER */}
           <Route path='/teacherDashboard' element={<TeacherLayout><TeacherDashboard /></TeacherLayout>} />
 
-          <Route path='/teacherFeed' element={<TeacherLayout><TeacherFeed /></TeacherLayout>} />
+          <Route path='/teacherFeed/:id' element={<TeacherLayout><TeacherFeed /></TeacherLayout>} />
+
+          <Route path='/instructorEditPassword' element={<TeacherLayout><InstructorEditPassword /></TeacherLayout>} />
+
+          <Route path='/instructorEditProfile' element={<TeacherLayout><InstructorEditProfile /></TeacherLayout>} />
 
 
 
@@ -116,13 +127,12 @@ function App() {
           
           <Route path='/studentActivity/:id' element={<StudentLayout><StudentActivity /></StudentLayout>} />
 
-          <Route path='/editPassword' element={<StudentLayout><EditPassword /></StudentLayout>} />
-          <Route path='/editProfile' element={<StudentLayout><EditProfile /></StudentLayout>} />
 
           
           <Route path='/manageAccount' element={<ManageAccount />}/>
 
           <Route path='/quiz' element={<Quiz />} />
+          <Route path='/createQuiz' element={<StudentLayout><CreateQuiz /></StudentLayout>} />
 
           <Route path='/videoApp' element={<VideoApp />} />
 

@@ -1,170 +1,414 @@
-import React, { useEffect, useState } from 'react'
-import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, Typography, useTheme } from '@material-ui/core'
-import { Assignment, AttachFileRounded } from '@material-ui/icons'
-import { useLocation } from 'react-router-dom'
-import axios from 'axios'
-
+import { React, useState } from 'react'
+import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, MenuItem, Box, List, ListItem, ListItemText, ListItemIcon, Divider, FormLabel, Slide, Switch } from '@material-ui/core'
 import StudentPosts from '../components/StudentPosts'
+import { Assessment, Assignment, AttachFileRounded, Close, DescriptionRounded, ImageAspectRatioRounded, ImageRounded, InsertDriveFileRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { format } from 'date-fns'
+import axios from 'axios'
+import { useEffect } from 'react'
+
+import Cookies from 'js-cookie'
+import CreateActivity from './CreateActivity'
 
 const useStyle = makeStyles(theme => {
-    return {
-        paper: {
-            padding: theme.spacing(2)
-        },
-        input: {
-            display: 'none'
-        }
+  return {
+    root: {
+      display: 'flex'
+    },
+    paper: {
+      padding: theme.spacing(2)
+    },
+    posts: {
+      width: '100%'
     }
+  }
 })
 
 export default function TeacherFeed() {
-    const classes = useStyle()
-    const location = useLocation()
-    const subject = location.search.slice(1)
-    const subjectName = subject.replace('%20', ' ')
+  const classes = useStyle()
+  const navigate = useNavigate()
+  const CookieID = Cookies.get('instructorID');
+  const { id } = useParams();
+
+  const date = new Date();
+  const today = format(date, "yyyy-MM-dd");
+  const currentTime = format(date, "23:59");
 
 
-    useEffect(() => {
-        showClassrooms();
-    }, []);
 
-    const [activities, setActivities] = useState([]);
 
-    function showClassrooms() {
-        axios.get('http://localhost:80/api/feeds.php')
-        .then((response) => {
-            console.log(response.data);
-            setActivities(response.data);
-            if(response.data.Status == 'Invalid') {
-                alert('Invalid User');
-            } else {
-                // navigate('/teacherDashboard')
-            }
-        })
+
+  function sessionCheck() {
+    if (!CookieID) {
+      navigate('/');
     }
+  }
 
-    // const [open, setOpen] = React.useState(false);
-    // const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-    // const handleClickOpen = () => {
-    //     setOpen(true);
-    // };
 
-    // const handleClose = () => {
-    //     setOpen(false);
-    // };
 
-    const [data, setData] = useState({
-        title: '',
-        details: ''
-    })
 
-    const handleChange = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
 
-        setData(data => ({ ...data, [name]: value }));
-    }
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
 
-        const sendData = {
-            title: data.title,
-            details: data.details
+
+
+  const [subjectInfo, setSubjectInfo] = useState({});
+
+  const [activities, setActivities] = useState([])
+
+  const [noPost, setNoPost] = useState(true);
+
+  const [img, setImg] = useState('');
+
+  const getClassrooms = () => {
+    const sendData = {
+      updateID: id
+    };
+
+    axios.post('https://ursacapi.000webhostapp.com/api/getClassroomID.php', JSON.stringify(sendData))
+      .then(response => {
+        if (response.data == 0) {
+          console.log('classroom ID not found');
+        } else {
+          setSubjectInfo(response.data[0]);
         }
-        console.log(sendData)
+      })
+  }
+
+  const streamFeed = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getPost.php', JSON.stringify(id))
+      .then((response) => {
+        if (response.data == 0) {
+          setNoPost(true);
+        } else {
+          setActivities(response.data.reverse())
+          setNoPost(false);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      })
+  }
+
+  const getFiles = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getFile.php', JSON.stringify(id))
+      .then(response => {
+        setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
+      })
+      .catch(err => console.log(err))
+  }
+
+  const showInstructorsInfo = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getInstructors.php', JSON.stringify(CookieID))
+      .then((response) => {
+        if (response.data) {
+          Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
+          // Cookies.set('userFirstName', response.data[0].firstName)
+          setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+
+          // setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+        }
+
+      })
+      .catch(error => {
+        console.log(error);
+      })
+  }
 
 
-        axios.post('https://ursacapi.000webhostapp.com/createFeed.php', sendData)
-            .then((result) => {
-                console.log(result.data)
-                if (result.data.Status == 'Invalid') {
-                    alert('Invalid User');
-                } else {
-                    showClassrooms();
-                }
-            })
+
+
+
+
+
+  const [postData, setPostData] = useState({
+    title: '',
+    body: '',
+    name: Cookies.get('userName')
+  });
+
+  const handleChange = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+
+    setPostData(postData => ({ ...postData, [name]: value }));
+  }
+
+  const handlePost = async (e) => {
+    e.preventDefault()
+
+    let res = await uploadFile(filePreview, postData);
+    console.log(res.data);
+    setPostData({
+      title: '',
+      body: '',
+      name: Cookies.get('userName')
+    });
+    setFilePreview([]);
+    streamFeed();
+
+  }
+
+
+
+
+
+
+  const [filePreview, setFilePreview] = useState([]);
+
+  const [fileOnChange, setFileOnChange] = useState(false);
+  // const [newFile, setNewFile] = useState([]);
+  const handleFileChange = (event) => {
+
+    let currentFile = event.target.files;
+
+
+    setFileOnChange(true)
+
+    for (let file of currentFile) {
+      setFilePreview(filePreview => [...filePreview, file])
     }
 
+    // setNewFile(currentFile)
+  }
 
-    // const [activities, setActivities] = useState([
-    //     { title: 'Assignment 1 mahaba mabahaba', body: 'May 11', id: 1 },
-    //     { title: 'Assignment 2 mahaba mabahaba', body: 'May 2', id: 2 },
-    //     { title: 'Assignment 3 mahaba mabahaba', body: 'May 3', id: 3 },
-    //     { title: 'Assignment 4 mahaba mabahaba', body: 'May 4', id: 4 },
-    //     { title: 'Assignment 5 mahaba mabahaba', body: 'May 5', id: 5 },
-    //     { title: 'Assignment 6 mahaba mabahaba', body: 'May 6', id: 6 },
-    //     { title: 'Assignment 7 mahaba mabahaba', body: 'May 7', id: 7 },
-    //     { title: 'Assignment 8 mahaba mabahaba', body: 'May 8', id: 8 },
-    //     { title: 'Assignment 9 mahaba mabahaba', body: 'May 9', id: 9 },
-    //     { title: 'Assignment 10 mahaba mabahaba', body: 'May 10', id: 10 },
-    // ])
+  const checkFileLength = () => {
+    if (filePreview.length == 1) {
+      setFileOnChange(false)
 
-    return (
-        <>
-            <Container maxWidth='sm'>
-                <Grid container spacing={3}>
+    } else {
+      setFileOnChange(true)
+    }
+  }
 
-                    <Grid item xs={12}>
-                        <h1>{subjectName}</h1>
-                        <p>BSCpE - 3A</p>
+
+  const [attachActivity, setAttachActivity] = useState(false);
+  const [makeActivity, setMakeActivity] = useState(false);
+  const toggleChecked = () => {
+    setMakeActivity((prev) => !prev);
+  };
+  const isDisplay = () => {
+    if (makeActivity) {
+      return 'block';
+    } else {
+      return 'none';
+    }
+  }
+
+
+
+  const uploadFile = async (filePreview) => {
+    const formdata = new FormData();
+
+    for (let i = 0; i < filePreview.length; i++) {
+      formdata.append("files[]", filePreview[i]);
+    }
+
+    formdata.append("title", postData.title)
+    formdata.append("body", postData.body)
+    formdata.append("name", postData.name)
+    formdata.append("userid", CookieID)
+    formdata.append("profilePicture", img)
+    formdata.append("classroomID", id)
+    formdata.append("submit", 'submit')
+
+
+    return await axios({
+      url: 'https://ursacapi.000webhostapp.com/api/addPost.php',
+      method: "POST",
+      headers: {
+        'content-type': 'multipart/form-data'
+      },
+      data: formdata
+    })
+  }
+
+
+
+
+
+
+  useEffect(() => {
+    streamFeed();
+    getClassrooms();
+    // getFiles();
+    sessionCheck();
+    showInstructorsInfo();
+  }, []);
+
+
+
+
+  return (
+    <div className={classes.root}>
+      <Container maxWidth='sm'>
+        <CreateActivity attachActivity={attachActivity} setAttachActivity={setAttachActivity} />
+        <Grid container spacing={3} justifyContent='center' className={classes.content} >
+
+          <Grid item xs={12}>
+            <h1>{subjectInfo.subjectName}</h1>
+            <p>{subjectInfo.yearSection}</p>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Paper className={classes.paper} >
+
+              <div>
+                <form onSubmit={handlePost} >
+                  <TextField
+                    variant='filled'
+                    type='text'
+                    name='title'
+                    value={postData.title}
+                    onChange={handleChange}
+                    color='secondary'
+                    label='Title'
+                    margin='normal'
+                    fullWidth
+                    multiline
+                    required
+                  />
+
+                  <TextField
+                    variant='filled'
+                    type='text'
+                    name='body'
+                    value={postData.body}
+                    onChange={handleChange}
+                    color='secondary'
+                    label='Say something here...'
+                    minRows={4}
+                    margin='normal'
+                    fullWidth
+                    multiline
+                    required
+                  />
+
+                  <input onChange={handleFileChange} style={{ display: 'none' }} type="file" name='files[]' multiple id='attach-file' />
+                  <label htmlFor="attach-file">
+                    <IconButton component='span'><Tooltip title='Attach a file' placement='right-start' ><AttachFileRounded /></Tooltip></IconButton>
+                  </label>
+
+                  {/* <IconButton component='span' onClick={() => { setAttachActivity(true) }}><Tooltip title='Attach an activity' placement='right-start' ><Assignment /></Tooltip></IconButton> */}
+
+                  {/* <button type='button' onClick={removeFile}>Click</button> */}
+
+                  {
+                    fileOnChange ?
+
+                      <Box ml={2}>
+                        <List>
+                          Files to be uploaded:
+                          {
+                            filePreview.map(file => (
+                              <ListItem key={file.name} dense>
+                                <ListItemIcon>
+                                  {
+                                    file.type === 'application/pdf' ?
+                                      <PictureAsPdfRounded />
+                                      :
+                                      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ?
+                                        <DescriptionRounded />
+                                        :
+                                        file.type === 'video/x-matroska' ?
+                                          <MovieCreationRounded />
+                                          :
+                                          file.type === 'image/jpeg' || 'image/jpg' || 'image/png' ?
+                                            <ImageRounded />
+                                            :
+                                            <DescriptionRounded />
+                                  }
+                                </ListItemIcon>
+                                <ListItemText>
+                                  {file.name}
+                                </ListItemText>
+                                <IconButton onClick={() => {
+                                  setFilePreview(filePreview.filter(thisFile => thisFile.name !== file.name));
+                                  checkFileLength();
+                                }}><Close />
+                                </IconButton>
+                              </ListItem>
+                            ))
+                          }
+                        </List>
+                      </Box>
+
+                      :
+
+                      null
+
+                  }
+
+                  <Box mt={2}>
+                    <Switch checked={makeActivity} onChange={toggleChecked} />
+                    <label>Post as an Activity</label>
+                  </Box>
+                  <Box mb={2} mt={2} display={isDisplay()}>
+                    <Grid container justifyContent='center'>
+                      <Grid item>
+                        <label htmlFor='points'>Points</label><br />
+                        <TextField
+                          InputProps={{ inputProps: { min: "0" } }}
+                          variant='filled'
+                          name='points'
+                          type='number'
+                          min='1'
+                        />
+                      </Grid>
                     </Grid>
 
-                    <Grid item xs={12}>
-                        <form noValidate autoComplete="off" onSubmit={handleSubmit}>
-                            <Paper className={classes.paper} >
-                                <Typography variant='h5'>
-                                    Create post
-                                </Typography>
-
-                                <TextField onChange={handleChange} value={data.title} name='title' variant='filled' label='Title ' margin='normal' fullWidth />
-
-                                <TextField onChange={handleChange} value={data.details} name='details' variant='filled' color='secondary' label='Announcement' minRows={5} margin='normal' multiline fullWidth />
-
-                                <div>
-                                    <input className={classes.input} type="file" accept='image/*' id='attach-file' />
-                                    <label htmlFor="attach-file">
-                                        <IconButton component='span'><Tooltip title='Attach a file' placement='top' ><AttachFileRounded /></Tooltip></IconButton>
-                                    </label>
-                                    <IconButton component='span'><Tooltip title='Attach a Quiz form' placement='top' ><Assignment /></Tooltip></IconButton>
-                                </div>
-
-                                <div>
-                                    <Button type='submit' name='submit' variant='contained' color='secondary' size='large' fullWidth disableElevation >Post</Button>
-                                </div>
-                            </Paper>
-                        </form>
-
-                        {/* <Dialog
-                            fullScreen={fullScreen}
-                            open={open}
-                            onClose={handleClose}
-                        >
-                            <DialogContent>
-                                <DialogContentText>
-                                    Are you sure you want to post this?
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button autoFocus onClick={handleClose} color="primary">
-                                    Cancel
-                                </Button>
-                                <Button onClick={handleClose} color="primary" autoFocus>
-                                    Confirm
-                                </Button>
-                            </DialogActions>
-                        </Dialog> */}
+                    <Grid container spacing={3} justifyContent='center'>
+                      <Grid item>
+                        <Box mb={2} mt={2}>
+                          <label>Due date</label><br />
+                          <TextField variant='filled' type='date' value={today} />
+                        </Box>
+                      </Grid>
+                      <Grid item>
+                        <Box mb={2} mt={2}>
+                          <label>Due time</label><br />
+                          <TextField variant='filled' type='time' value={currentTime} />
+                        </Box>
+                      </Grid>
                     </Grid>
+                  </Box>
 
-                    {activities.map(activity => (
-                        <Grid item xs={12} key={activity.id}>
-                            <StudentPosts activity={activity} />
-                        </Grid>
-                    ))}
 
-                </Grid>
-            </Container>
-        </>
-    )
+
+                  <Button variant='contained' color='secondary' type='submit' name='submit' size='large' fullWidth disableElevation>Post</Button>
+
+                </form>
+
+              </div>
+            </Paper>
+          </Grid>
+          {
+            noPost ?
+
+              <Paper variant='outlined' >
+                <MenuItem disabled>
+                  You have no announcement yet.
+                </MenuItem>
+              </Paper>
+
+              :
+
+              <Box className={classes.posts}>
+                {activities.map(activity => (
+                  <Grid item xs={12} key={activity.id}>
+                    <Box mt={5}>
+                      <StudentPosts streamFeed={streamFeed} activity={activity} />
+                    </Box>
+                  </Grid>
+                ))}
+              </Box>
+
+          }
+
+
+        </Grid>
+      </Container>
+    </div>
+  )
 }

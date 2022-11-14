@@ -1,7 +1,7 @@
 import { React, useState } from 'react'
-import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, Card, CardContent, MenuItem, Box, List, ListItem, ListItemText, ListItemIcon, Divider } from '@material-ui/core'
+import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, MenuItem, Box, List, ListItem, ListItemText, ListItemIcon, Divider } from '@material-ui/core'
 import StudentPosts from '../components/StudentPosts'
-import { AttachFileRounded, DescriptionRounded, ImageAspectRatioRounded, ImageRounded, InsertDriveFileRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
+import { AttachFileRounded, Close, DescriptionRounded, ImageAspectRatioRounded, ImageRounded, InsertDriveFileRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { useEffect } from 'react'
@@ -16,7 +16,7 @@ const useStyle = makeStyles(theme => {
   }
 })
 
-export default function StudentFeed({ }) {
+export default function StudentFeed() {
   const classes = useStyle()
   const navigate = useNavigate()
   const CookieID = Cookies.get('idLoggedIn');
@@ -70,7 +70,7 @@ export default function StudentFeed({ }) {
         if (response.data == 0) {
           setNoPost(true);
         } else {
-          setActivities(response.data)
+          setActivities(response.data.reverse())
           setNoPost(false);
         }
       })
@@ -87,6 +87,23 @@ export default function StudentFeed({ }) {
       .catch(err => console.log(err))
   }
 
+  const showStudentsInfo = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getStudents.php', JSON.stringify(CookieID))
+      .then((response) => {
+        if (response.data) {
+          Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
+          // Cookies.set('userFirstName', response.data[0].firstName)
+          setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+
+          // setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+        }
+
+      })
+      .catch(error => {
+        console.log(error);
+      })
+  }
+
 
 
 
@@ -98,7 +115,7 @@ export default function StudentFeed({ }) {
   const [postData, setPostData] = useState({
     title: '',
     body: '',
-    file: ''
+    name: 'Phil'
   });
 
   const handleChange = (event) => {
@@ -110,26 +127,17 @@ export default function StudentFeed({ }) {
 
   const handlePost = async (e) => {
     e.preventDefault()
-    // const sendData = {
-    //   title: postData.title,
-    //   body: postData.body,
-    //   file: postData.file,
-    //   updateID: CookieID,
-    //   updateName: CookieName,
-    //   id
-    // };
 
-
-    let res = await uploadFile(newFile)
+    let res = await uploadFile(filePreview, postData)
     console.log(res.data);
-
-    // .then(response => {
-    //   console.log(response.data);
-    // })
-    // .catch(err => console.log(err))
+    setPostData({
+      title: '',
+      body: '',
+      name: Cookies.get('userName')
+    });
+    streamFeed();
 
   }
-
 
 
 
@@ -140,9 +148,9 @@ export default function StudentFeed({ }) {
   const [filePreview, setFilePreview] = useState([]);
 
   const [fileOnChange, setFileOnChange] = useState(false);
-  const [newFile, setNewFile] = useState(null);
+  // const [newFile, setNewFile] = useState([]);
   const handleFileChange = (event) => {
-    // let files = event.target.files[0];
+
     let currentFile = event.target.files;
 
     setFileOnChange(true)
@@ -150,28 +158,47 @@ export default function StudentFeed({ }) {
     for (let file of currentFile) {
       setFilePreview(filePreview => [...filePreview, file])
       console.log(file);
+
     }
+    // setNewFile(currentFile)
+  }
 
+  const checkFileLength = () => {
+    if (filePreview.length == 1) {
+      setFileOnChange(false)
 
-
-
-    setNewFile(currentFile)
+    } else {
+      setFileOnChange(true)
+    }
   }
 
 
-
-  const uploadFile = async (newFile) => {
+  const uploadFile = async (filePreview) => {
     const formdata = new FormData();
 
-    formdata.append('avatar', newFile);
+    for (let i = 0; i < filePreview.length; i++) {
+      formdata.append("files[]", filePreview[i]);
+    }
+
+    formdata.append("title", postData.title)
+    formdata.append("body", postData.body)
+    formdata.append("name", postData.name)
+    formdata.append("userid", CookieID)
+    formdata.append("profilePicture", img)
+    formdata.append("classroomID", id)
+    formdata.append("submit", 'submit')
 
 
-    return await axios.post('https://ursacapi.000webhostapp.com/api/addPost.php', formdata, {
+    return await axios({
+      url: 'https://ursacapi.000webhostapp.com/api/addPost.php',
+      method: "POST",
       headers: {
         'content-type': 'multipart/form-data'
-      }
-    });
+      },
+      data: formdata
+    })
   }
+
 
 
 
@@ -180,8 +207,9 @@ export default function StudentFeed({ }) {
   useEffect(() => {
     streamFeed();
     getClassrooms();
-    getFiles();
+    // getFiles();
     sessionCheck();
+    showStudentsInfo();
   }, []);
 
 
@@ -191,7 +219,7 @@ export default function StudentFeed({ }) {
   return (
     <div className={classes.root}>
       <Container maxWidth='sm'>
-        <Grid container spacing={3} >
+        <Grid container spacing={3} justifyContent='center' >
 
           <Grid item xs={12}>
             <h1>{subjectInfo.subjectName}</h1>
@@ -210,7 +238,7 @@ export default function StudentFeed({ }) {
                     value={postData.title}
                     onChange={handleChange}
                     color='secondary'
-                    label='Title'
+                    label='Title (Optional)'
                     margin='normal'
                     fullWidth
                     multiline
@@ -228,16 +256,17 @@ export default function StudentFeed({ }) {
                     margin='normal'
                     fullWidth
                     multiline
+                    required
                   />
 
-                  <input onChange={handleFileChange} style={{ display: 'none' }} type="file" name='file' multiple id='attach-file' />
+                  <input onChange={handleFileChange} style={{ display: 'none' }} type="file" name='files[]' multiple id='attach-file' />
                   <label htmlFor="attach-file">
                     <IconButton component='span'><Tooltip title='Attach a file' placement='right-start' ><AttachFileRounded /></Tooltip></IconButton>
                   </label>
 
                   {
                     fileOnChange ?
-                    
+
                       <Box ml={2}>
                         <List>
                           {
@@ -248,21 +277,26 @@ export default function StudentFeed({ }) {
                                     file.type === 'application/pdf' ?
                                       <PictureAsPdfRounded />
                                       :
-                                      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ?
-                                      <DescriptionRounded />
-                                      :
-                                      file.type === 'video/x-matroska' ?
-                                      <MovieCreationRounded />
-                                      :
-                                      file.type === 'image/jpeg' || 'image/jpg' || 'image/png' ?
-                                      <ImageRounded />
-                                      :
-                                      <InsertDriveFileRounded />
+                                      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ?
+                                        <DescriptionRounded />
+                                        :
+                                        file.type === 'video/x-matroska' ?
+                                          <MovieCreationRounded />
+                                          :
+                                          file.type === 'image/jpeg' || 'image/jpg' || 'image/png' ?
+                                            <ImageRounded />
+                                            :
+                                            <DescriptionRounded />
                                   }
                                 </ListItemIcon>
                                 <ListItemText>
                                   {file.name}
                                 </ListItemText>
+                                <IconButton onClick={() => {
+                                  setFilePreview(filePreview.filter(thisFile => thisFile.name !== file.name));
+                                  checkFileLength();
+                                }}><Close />
+                                </IconButton>
                               </ListItem>
                             ))
                           }
@@ -275,7 +309,7 @@ export default function StudentFeed({ }) {
 
                   }
 
-                  <Button variant='contained' color='secondary' type='submit' size='large' fullWidth disableElevation>Post</Button>
+                  <Button variant='contained' color='secondary' type='submit' name='submit' size='large' fullWidth disableElevation>Post</Button>
 
                 </form>
 
@@ -293,10 +327,12 @@ export default function StudentFeed({ }) {
 
               :
 
-              <Box>
+              <Box mr={2}>
                 {activities.map(activity => (
                   <Grid item xs={12} key={activity.id}>
-                    <StudentPosts activity={activity} img={img} />
+                    <Box mt={5}>
+                      <StudentPosts streamFeed={streamFeed} activity={activity} img={img} />
+                    </Box>
                   </Grid>
                 ))}
               </Box>

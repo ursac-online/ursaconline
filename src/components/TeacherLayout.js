@@ -1,11 +1,13 @@
 
-import React from 'react';
-import { AppBar, Avatar, Drawer, IconButton, List, Menu, ListItem, ListItemText, makeStyles, MenuItem, Toolbar, Tooltip, Box, ListItemIcon, Divider, Typography } from '@material-ui/core'
+import React, { useEffect } from 'react';
+import { AppBar, Avatar, Drawer, IconButton, List, Menu, ListItem, ListItemText, makeStyles, MenuItem, Toolbar, Tooltip, Box, ListItemIcon, Divider, Typography, CircularProgress } from '@material-ui/core'
 import { AddCircle, ChevronLeftRounded, MenuRounded, ViewModule } from '@material-ui/icons';
 import logo4 from '../images/logo4.png'
 import logo5 from '../images/logo5.png'
+import urs from '../images/urslogo.png'
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 import Cookies from 'js-cookie'
 
@@ -23,29 +25,31 @@ const useStyle = makeStyles(theme => {
         boxShadow: 'rgb(35 68 101 / 5%) 0px 4px 16px, rgb(35 68 101 / 5%) 0px 4px 4px;'
       },
 
-      '& .MuiCard-root': {
-        boxShadow: '',
-        transition: 'all ease-out 0.1s',
-        [theme.breakpoints.down('xs')]: {
-          margin: '0 50px'
-        },
+      // '& .MuiCard-root': {
+      //   boxShadow: '',
+      //   transition: 'all ease-out 0.1s',
+      //   [theme.breakpoints.down('xs')]: {
+      //     margin: '0 50px'
+      //   },
 
-        '&:hover': {
-          transform: 'scale(1.01)',
-          boxShadow: '2px 5px 7px rgba(0, 0, 0, 0.25)',
-          transition: 'all ease-out 0.1s',
-          [theme.breakpoints.down('md')]: {
-            transform: 'none'
-          }
-        }
-      }
+      //   '&:hover': {
+      //     transform: 'scale(1.01)',
+      //     boxShadow: '2px 5px 7px rgba(0, 0, 0, 0.25)',
+      //     transition: 'all ease-out 0.1s',
+      //     [theme.breakpoints.down('md')]: {
+      //       transform: 'none'
+      //     }
+      //   }
+      // }
     },
 
 
     page: {
       background: '#f9fbfd',
       width: '100%',
-      padding: theme.spacing(1)
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
+      marginBottom: theme.spacing(5)
     },
 
 
@@ -112,6 +116,18 @@ const useStyle = makeStyles(theme => {
     center: {
       textAlign: 'center'
     },
+    whiteIcon: {
+      color: 'white'
+    },
+    loading: {
+      marginTop: theme.spacing(30)
+    },
+    whiteText: {
+      color: '#333',
+      [theme.breakpoints.down('sm')]: {
+        color: 'white'
+      }
+    }
   }
 });
 
@@ -121,8 +137,31 @@ export default function Layout({ children }) {
   const classes = useStyle()
   const navigate = useNavigate()
   const [openDrawer, setOpenDrawer] = useState(false)
+  const [profilePic, setProfilePic] = useState('');
+  const [isLayoutLoading, setIsLayoutLoading] = useState(true);
+  const Cookie = Cookies.get('instructorID');
+
+  const showInstructorsInfo = () => {
+    axios.post('https://ursacapi.000webhostapp.com/api/getInstructors.php', JSON.stringify(Cookie))
+      .then((response) => {
+        if (response.data) {
+          Cookies.set('userName', response.data[0].firstName + ' ' + response.data[0].lastName)
+          Cookies.set('userFirstName', response.data[0].firstName)
+          setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
+        }
+
+      })
+      .catch(error => {
+        console.log(error);
+      })
+      setIsLayoutLoading(false)
+
+  }
 
 
+  useEffect(() => {
+    showInstructorsInfo();
+  }, []);
 
   const [anchor, setAnchor] = useState(null)
   const openMenu = (event) => {
@@ -136,25 +175,26 @@ export default function Layout({ children }) {
 
   const logout = () => {
     Cookies.remove('idLoggedIn');
-    Cookies.remove('teacherID');
+    Cookies.remove('instructorID');
     Cookies.remove('userInfo');
     navigate('/');
   }
 
 
-  const user = Cookies.get('userInfo');
+  const user = Cookies.get('userName');
+  const userFirstName = Cookies.get('userFirstName');
 
 
   const studentSideLinks = [
     {
       text: 'Dashboard',
-      icon: <Tooltip title='Dasboard' placement='right-start' ><ViewModule color='error' /></Tooltip>,
+      icon: <Tooltip title='Dasboard' placement='right-start' ><ViewModule className={classes.whiteIcon} /></Tooltip>,
       path: '/teacherDashboard',
       id: 1
     },
     {
       text: 'Join/Create',
-      icon: <Tooltip title='Join/Create' ><AddCircle color='error' /></Tooltip>,
+      icon: <Tooltip title='Join/Create' ><AddCircle className={classes.whiteIcon} /></Tooltip>,
       path: '/createTeacherClassroom',
       id: 2
     },
@@ -164,88 +204,105 @@ export default function Layout({ children }) {
 
   return (
     <div className={classes.root}>
+      {/* {
+        isLayoutLoading ?
 
-      {/* // Navigation Bar */}
-      <AppBar className={classes.appBar} position='fixed' color='inherit' elevation={0}>
-        <Toolbar>
+          <Box>
+            <CircularProgress className={classes.loading} color='secondary' />
+            <img src={urs} alt="" />
+          </Box>
 
-          
-          <IconButton className={classes.mobileMenu} onClick={() => setOpenDrawer(true)}>
-            <MenuRounded color='error' />
-          </IconButton>
+          : */}
 
-          
-          <Menu elevation={2} className={classes.menu} open={Boolean(anchor)} anchorEl={anchor} onClose={closeMenu} keepMounted >
-            <MenuItem disabled> {user} </MenuItem>
-            <Divider />
-            <MenuItem dense> Manage Account </MenuItem>
-            <MenuItem dense> Settings </MenuItem>
-            <MenuItem dense onClick={logout}> Sign Out </MenuItem>
-          </Menu>
+          <Box>
+            {/* // Navigation Bar */}
+            <AppBar className={classes.appBar} position='fixed' color='inherit' elevation={0}>
+              <Toolbar>
 
 
+                <IconButton className={classes.mobileMenu} onClick={() => setOpenDrawer(true)}>
+                  <MenuRounded className={classes.whiteIcon} />
+                </IconButton>
 
-          {/* Mobile Side Navigation Bar */}
-          <Drawer anchor='left' open={openDrawer} onClose={() => setOpenDrawer(false)} >
-            <Box className={classes.mobileDrawer} role='presentation' textAlign='center' >
 
-              <IconButton>
-                <ChevronLeftRounded color='error' onClick={() => setOpenDrawer(false)} />
-              </IconButton>
+                <Menu elevation={2} className={classes.menu} open={Boolean(anchor)} anchorEl={anchor} onClose={closeMenu} keepMounted >
+                  <MenuItem disabled> {user} </MenuItem>
+                  <MenuItem dense onClick={() => { navigate('/instructorEditProfile'); setAnchor(null) }}> Edit Profile </MenuItem>
+                  <MenuItem dense onClick={() => { navigate('/instructorEditPassword'); setAnchor(null) }}> Change Password </MenuItem>
+                  <Divider />
+                  {/* <MenuItem dense onClick={accountDetails}> Account Details </MenuItem> */}
+                  <MenuItem dense onClick={logout}> Sign Out </MenuItem>
+                </Menu>
 
-              <center>
-                <img src={logo4} style={{ width: '70px', height: 'auto' }} alt="" />
-              </center>
+
+
+                {/* Mobile Side Navigation Bar */}
+                <Drawer anchor='left' open={openDrawer} onClose={() => setOpenDrawer(false)} >
+                  <Box className={classes.mobileDrawer} role='presentation' textAlign='center' >
+
+                    <IconButton>
+                      <ChevronLeftRounded onClick={() => setOpenDrawer(false)} className={classes.whiteIcon} />
+                    </IconButton>
+
+                    <center>
+                      <img src={logo4} style={{ width: '70px', height: 'auto' }} alt="" />
+                    </center>
+
+                    <List>
+                      {studentSideLinks.map((links) => (
+                        <ListItem className={classes.lists} onClick={() => { navigate(links.path, { replace: true }) }} justifyContent='center' button key={links.id} >
+                          <ListItemIcon>{links.icon}</ListItemIcon>
+                          <ListItemText primary={links.text} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                </Drawer>
+
+
+                <div className={classes.title}>
+                  <Link to='/'><img className={classes.iconLogo} src={logo5} style={{ width: '40px', height: 'auto' }} alt="" /></Link>
+                </div>
+
+                <Typography className={classes.whiteText} >{userFirstName}</Typography>
+                <IconButton onClick={openMenu}>
+                  <Avatar src={profilePic} />
+                </IconButton>
+              </Toolbar>
+            </AppBar>
+
+
+
+            {/* sidebar */}
+            <Drawer
+              className={classes.drawer}
+              variant="permanent"
+              anchor="left"
+              classes={{ paper: classes.drawerPaper }}
+            >
 
               <List>
                 {studentSideLinks.map((links) => (
-                  <ListItem className={classes.lists} onClick={() => { navigate(links.path, { replace: true }) }} justifyContent='center' button key={links.id} >
-                    <ListItemIcon>{links.icon}</ListItemIcon>
-                    <ListItemText primary={links.text} />
+                  <ListItem onClick={() => { navigate(links.path, { replace: true }) }} button key={links.id}>
+                    <ListItemText className={classes.center} primary={links.icon} />
                   </ListItem>
                 ))}
               </List>
-            </Box>
-          </Drawer>
+
+            </Drawer>
+
+            <div className={classes.content}>
+              <div className={classes.drawerHeader} />
+              <div className={classes.page}>
+                <div className={classes.toolbar} elevation={0}></div>
+                {children}
+              </div>
+            </div>
+          </Box>
+
+      {/* } */}
 
 
-          <div className={classes.title}>
-            <Link to='/'><img className={classes.iconLogo} src={logo5} style={{ width: '40px', height: 'auto' }} alt="" /></Link>
-          </div>
-
-          <IconButton onClick={openMenu}>
-            <Avatar />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-
-
-      {/* sidebar */}
-      <Drawer
-        className={classes.drawer}
-        variant="permanent"
-        anchor="left"
-        classes={{ paper: classes.drawerPaper }}
-      >
-
-        <List>
-          {studentSideLinks.map((links) => (
-            <ListItem onClick={() => { navigate(links.path, { replace: true }) }} button key={links.id}>
-              <ListItemText className={classes.center} primary={links.icon} />
-            </ListItem>
-          ))}
-        </List>
-
-      </Drawer>
-
-      <div className={classes.content}>
-        <div className={classes.drawerHeader} />
-        <div className={classes.page}>
-          <div className={classes.toolbar} elevation={0}></div>
-          {children}
-        </div>
-      </div>
     </div>
   )
 }
