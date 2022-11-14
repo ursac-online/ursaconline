@@ -111,7 +111,7 @@ export default function Login() {
     const [selectPosition, setSelectPosition] = useState(true);
     useEffect(() => {
         setTimeout(() => {
-            fetch('http://localhost:3000/')
+            fetch(' https://ursac-online.github.io/ursaconline/')
                 .then(setIsPending(false))
                 .catch(err => {
                     console.log(err.message)
@@ -120,7 +120,7 @@ export default function Login() {
         }, 1510);
         sessionCheck();
         setTimeout(() => {
-            fetch('http://localhost:3000/')
+            fetch(' https://ursac-online.github.io/ursaconline/')
                 .then(setIsLoading(true))
         }, 1500);
     }, [])
