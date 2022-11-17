@@ -6,14 +6,38 @@ import { useNavigate } from 'react-router-dom'
 
 import Cookies from 'js-cookie'
 
-
+const width = 70;
+const smwidth = 20;
 const useStyle = makeStyles(theme => {
     return {
         root: {
-            display: 'flex'
+            width: `calc(100% - ${width})`,
+            marginLeft: width,
+            marginRight: width,
+            [theme.breakpoints.down('sm')]: {
+                width: `calc(100% - ${smwidth})`,
+                marginLeft: smwidth,
+                marginRight: smwidth,
+            }
+
         },
         loading: {
-            marginTop: theme.spacing(20)
+            marginTop: theme.spacing(20),
+        },
+        loadingContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%'
+        },
+        dashContainer: {
+            marginLeft: smwidth,
+            [theme.breakpoints.down('sm')]: {
+                marginLeft: 0,
+            }
+        },
+        noClassText: {
+            maxWidth: 230,
+            margin: '0 auto'
         }
 
     }
@@ -43,9 +67,10 @@ export default function TeacherDashboard() {
                 if (response.data == 0) {
                     setNoClassroom(true);
                 } else {
-                    setSubjects(response.data)
-                    setNoClassroom(false);
+                    setSubjects(response.data);
                     setIsLoading(false)
+                    setNoClassroom(false);
+
                 }
             })
             .catch(err => console.log(err))
@@ -61,11 +86,15 @@ export default function TeacherDashboard() {
 
 
     return (
-        <Box>
+        <Box className={classes.root}>
             {
                 isLoading ?
 
-                    <CircularProgress className={classes.loading} color='secondary' />
+
+                    <Box className={classes.loadingContainer}>
+                        <CircularProgress className={classes.loading} color='secondary' />
+                    </Box>
+
 
                     :
 
@@ -73,23 +102,25 @@ export default function TeacherDashboard() {
                         {
                             noClassroom ?
 
-                                <MenuItem disabled>
-                                    You have no classroom yet.
-                                </MenuItem>
 
+                                <Box className={classes.noClassText}>
+                                    <MenuItem disabled>
+                                        You have no classroom yet.
+                                    </MenuItem>
+                                </Box>
                                 :
 
-                                <Container >
+                                <Box className={classes.dashContainer}>
 
-                                    <Grid container spacing={7}>
-                                        <div>{subjects.subjectName}</div>
+                                    <Grid container spacing={4}>
+                                        {/* <div>{subjects.subjectName}</div> */}
                                         {subjects.map(subject => (
-                                            <Grid item xs={12} sm={6} lg={3} key={subject.id}>
-                                                <ClassroomCards subject={subject} />
+                                            <Grid item key={subject.id}>
+                                                <ClassroomCards subject={subject}  showClassrooms={showClassrooms}/>
                                             </Grid>
                                         ))}
                                     </Grid>
-                                </Container>
+                                </Box>
 
                         }
 

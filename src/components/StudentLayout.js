@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { AppBar, Avatar, Drawer, IconButton, List, Menu, ListItem, ListItemText, makeStyles, MenuItem, Toolbar, Tooltip, Box, ListItemIcon, Divider, Typography, Icon } from '@material-ui/core'
-import { AddCircle, ChevronLeftRounded, MenuRounded, ViewModule } from '@material-ui/icons';
+import { AddCircle, ChevronLeftRounded, CloseRounded, MenuRounded, ViewModule } from '@material-ui/icons';
 import logo4 from '../images/logo4.png'
 import logo5 from '../images/logo5.png'
 import { useState } from 'react';
@@ -16,9 +16,6 @@ const drawerWidth = 70;
 const useStyle = makeStyles(theme => {
   return {
     root: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
 
       '& .MuiToolbar-root': {
         // boxShadow: 'rgb(35 68 101 / 5%) 0px 4px 16px, rgb(35 68 101 / 5%) 0px 4px 4px;',
@@ -30,7 +27,8 @@ const useStyle = makeStyles(theme => {
     page: {
       background: '#f9fbfd',
       width: '100%',
-      padding: theme.spacing(1),
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
       marginBottom: theme.spacing(5)
     },
 
@@ -82,6 +80,9 @@ const useStyle = makeStyles(theme => {
       [theme.breakpoints.up('md')]: {
         display: 'none'
       }
+    },
+    xBtn: {
+      float: 'right'
     },
 
 
@@ -213,17 +214,17 @@ useEffect(() => {
           <Drawer anchor='left' open={openDrawer} onClose={() => setOpenDrawer(false)} >
             <Box className={classes.mobileDrawer} role='presentation' textAlign='center' >
 
-              <IconButton onClick={() => setOpenDrawer(false)} >
-                <ChevronLeftRounded className={classes.whiteIcon}  />
+              <IconButton onClick={() => setOpenDrawer(false)} className={classes.xBtn} >
+                <CloseRounded className={classes.whiteIcon}  />
               </IconButton>
 
-              <center>
+              <Box mt={5} className={classes.imge}>
                 <Icon><img src={logo4} style={{ width: '70px', height: 'auto' }} alt="" /></Icon>
-              </center>
+              </Box>
 
               <List>
                 {studentSideLinks.map((links) => (
-                  <ListItem className={classes.lists} onClick={() => { navigate(links.path, { replace: true }) }} button key={links.id} >
+                  <ListItem className={classes.lists} onClick={() => { navigate(links.path, { replace: true }); setOpenDrawer(false) }} button key={links.id} >
                     <ListItemIcon>{links.icon}</ListItemIcon>
                     <ListItemText primary={links.text} />
                   </ListItem>

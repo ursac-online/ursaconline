@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormHelperText, FormLabel, Icon, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormHelperText, FormLabel, Icon, makeStyles, Paper, TextField, Typography } from '@material-ui/core'
 import axios from 'axios';
 import React from 'react'
 import { useState } from 'react';
@@ -9,6 +9,11 @@ import { useEffect } from 'react';
 
     const useStyle = makeStyles(theme => {
         return {
+            paper: {
+                padding: theme.spacing(4),
+                maxWidth: 500,
+                margin: '0 auto'
+            },
             green: {
                 color: '#55CA36'
             },
@@ -99,7 +104,8 @@ function EditPassword() {
 
 
     return (
-        <Box>
+        <Box mr={2} ml={2}>
+            <Paper className={classes.paper}>
             <Typography variant='h3' >
                 Change Password
             </Typography>
@@ -202,7 +208,7 @@ function EditPassword() {
 
 
             </Dialog>
-
+            </Paper>
         </Box>
     )
 }

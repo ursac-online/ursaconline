@@ -11,6 +11,8 @@ const useStyle = makeStyles(theme => {
         // MAIN CONTAINER
         root: {
             boxShadow: theme.shadows[2],
+            maxWidth: 500,
+            margin: '0 auto',
             padding: theme.spacing(4),
             '& .MuiTextField-root': {
                 marginBottom: theme.spacing(2)
@@ -171,7 +173,7 @@ export default function EditProfile() {
         setisLoading(true);
 
         formdata.append('profilePhoto', uploadPhoto);
-        
+
         formdata.append('userid', id);
 
         return await axios({
@@ -291,186 +293,190 @@ export default function EditProfile() {
 
     return (
 
-        <Box className={classes.root}>
-            <center>
+        <Box mr={2} ml={2}>
+
+            <Box className={classes.root}>
+                <center>
 
 
 
 
 
-                {/* PROFILE PICTURE AND STUDENT ID */}
-                <Box mb={3}>
-                    <Grid container spacing={4} >
-                        <Grid item xs={6}>
+                    {/* PROFILE PICTURE AND STUDENT ID */}
+                    <Box mb={3}>
+                        <Grid container spacing={4} >
+                            <Grid item xs={6}>
 
-                            <form onSubmit={submitPhoto}>
+                                <form onSubmit={submitPhoto}>
 
-                                <input type="file" name='file' id='changeDP' style={{ display: 'none' }} accept="image/*" onChange={handleChangePicture} />
-                                <input type="text" name='id' value={id} style={{ display: 'none' }} onChange={handleChangePicture} />
+                                    <input type="file" name='file' id='changeDP' style={{ display: 'none' }} accept="image/*" onChange={handleChangePicture} />
+                                    <input type="text" name='id' value={id} style={{ display: 'none' }} onChange={handleChangePicture} />
 
-                                <label htmlFor="changeDP" className={classes.avatarContainer} >
+                                    <label htmlFor="changeDP" className={classes.avatarContainer} >
 
-                                    <Avatar className={classes.avatarSize} src={profilePic} />
+                                        <Avatar className={classes.avatarSize} src={profilePic} />
 
-                                    <Box className={classes.overlay}>
-                                        <PhotoCameraRounded className={classes.camera} fontSize='large' />
+                                        <Box className={classes.overlay}>
+                                            <PhotoCameraRounded className={classes.camera} fontSize='large' />
+                                        </Box>
+
+                                    </label>
+
+                                    {
+                                        preview ?
+
+                                            <Button variant='contained' type='submit' name='submit' color='secondary' size='small'> Save </Button>
+
+                                            :
+
+                                            null
+                                    }
+
+                                </form>
+
+                            </Grid>
+                            <Grid item xs={6}>
+
+                                <FormHelperText>Instructor ID: </FormHelperText>
+                                <Typography align='left'>{data.instructorID}</Typography>
+
+                            </Grid>
+                        </Grid>
+                    </Box>
+
+
+
+                    <Divider className={classes.divider} />
+
+
+
+                    {/* FORM */}
+                    <Box mt={3}>
+
+                        <form onSubmit={handleSubmit}>
+
+                            <FormHelperText>First Name</FormHelperText>
+                            <TextField variant='outlined' placeholder='First Name' type="text" name='firstName' value={data.firstName} onChange={handleChange} fullWidth required />
+
+                            <FormHelperText>Middle Name</FormHelperText>
+                            <TextField variant='outlined' placeholder='Middle Name' type="text" name='middleName' value={data.middleName} onChange={handleChange} fullWidth required />
+
+                            <FormHelperText>Last Name</FormHelperText>
+                            <TextField variant='outlined' placeholder='Last Name' type="text" name='lastName' value={data.lastName} onChange={handleChange} fullWidth required />
+
+                            <FormHelperText>College</FormHelperText>
+                            <TextField variant='outlined' placeholder='College' type="text" name='college' value={data.college} onChange={handleChange} fullWidth required disabled />
+
+                            <FormHelperText>Course</FormHelperText>
+                            <TextField variant='outlined' placeholder='Course' type="text" name='course' value={data.course} onChange={handleChange} fullWidth required multiline disabled />
+
+
+                            <Button className={classes.btn} fullWidth type='submit' name='submit' variant='contained' color='secondary'> Save Changes </Button>
+                        </form>
+                    </Box>
+
+
+                    <Dialog
+                        open={loadingDialog}
+                    >
+                        <DialogContent>
+
+                            {
+                                isLoading ?
+
+
+                                    <Box className={classes.dialogContainer}>
+                                        <Box mb={1}>
+                                            <CircularProgress color='secondary' />
+                                        </Box>
+                                        <DialogContentText>
+                                            Saving...
+                                        </DialogContentText>
                                     </Box>
 
-                                </label>
+                                    :
 
-                                {
-                                    preview ?
+                                    <Box className={classes.dialogContainer}>
+                                        <DialogContentText>
+                                            <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
+                                        </DialogContentText>
+                                        <DialogContentText>
+                                            Changes applied
+                                        </DialogContentText>
+                                    </Box>
 
-                                        <Button variant='contained' type='submit' name='submit' color='secondary' size='small'> Save </Button>
-
-                                        :
-
-                                        null
-                                }
-
-                            </form>
-
-                        </Grid>
-                        <Grid item xs={6}>
-
-                            <FormHelperText>Instructor ID: </FormHelperText>
-                            <Typography align='left'>{data.instructorID}</Typography>
-
-                        </Grid>
-                    </Grid>
-                </Box>
+                            }
 
 
 
-                <Divider className={classes.divider} />
+
+
+                        </DialogContent>
+
+                    </Dialog>
 
 
 
-                {/* FORM */}
-                <Box mt={3}>
-
-                    <form onSubmit={handleSubmit}>
-
-                        <FormHelperText>First Name</FormHelperText>
-                        <TextField variant='outlined' placeholder='First Name' type="text" name='firstName' value={data.firstName} onChange={handleChange} fullWidth required />
-
-                        <FormHelperText>Middle Name</FormHelperText>
-                        <TextField variant='outlined' placeholder='Middle Name' type="text" name='middleName' value={data.middleName} onChange={handleChange} fullWidth required />
-
-                        <FormHelperText>Last Name</FormHelperText>
-                        <TextField variant='outlined' placeholder='Last Name' type="text" name='lastName' value={data.lastName} onChange={handleChange} fullWidth required />
-
-                        <FormHelperText>College</FormHelperText>
-                        <TextField variant='outlined' placeholder='College' type="text" name='college' value={data.college} onChange={handleChange} fullWidth required disabled/>
-
-                        <FormHelperText>Course</FormHelperText>
-                        <TextField variant='outlined' placeholder='Course' type="text" name='course' value={data.course} onChange={handleChange} fullWidth required multiline disabled/>
 
 
-                        <Button className={classes.btn} fullWidth type='submit' name='submit' variant='contained' color='secondary'> Save Changes </Button>
-                    </form>
-                </Box>
+                </center>
 
 
+
+
+                {/* DIALOG */}
                 <Dialog
-                    open={loadingDialog}
+                    open={passwordDialog}
+                    onClose={cancelSubmit}
                 >
-                    <DialogContent>
+                    {
+                        success ?
 
-                        {
-                            isLoading ?
-
-
-                                <Box className={classes.dialogContainer}>
-                                    <Box mb={1}>
-                                        <CircularProgress color='secondary' />
-                                    </Box>
-                                    <DialogContentText>
-                                        Saving...
-                                    </DialogContentText>
-                                </Box>
-
-                                :
-
-                                <Box className={classes.dialogContainer}>
+                            <Box>
+                                <DialogContent className={classes.dialogContainer}>
                                     <DialogContentText>
                                         <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
                                     </DialogContentText>
                                     <DialogContentText>
                                         Changes applied
                                     </DialogContentText>
-                                </Box>
+                                    <DialogContentText>
+                                        Changes may take time.
+                                    </DialogContentText>
+                                </DialogContent>
 
-                        }
+                            </Box>
+
+                            :
+
+                            <Box>
+                                <DialogTitle>
+                                    Enter password to confirm
+                                </DialogTitle>
 
 
+                                <DialogContent>
+                                    <TextField
+                                        label='Password'
+                                        type='password'
+                                        value={userPassword}
+                                        onChange={handlePasswordChange}
+                                        error={wrongPassword || emptyPassword}
+                                        helperText={emptyPassword ? "Please enter your password" : wrongPassword && "Wrong Password!"}
+                                        fullWidth
+                                    />
+                                </DialogContent>
 
-
-
-                    </DialogContent>
+                                <DialogActions>
+                                    <Button variant='contained' color='secondary' onClick={checkPassword} >Confirm</Button>
+                                    <Button variant='outlined' color='secondary' onClick={cancelSubmit} >Cancel</Button>
+                                </DialogActions>
+                            </Box>
+                    }
 
                 </Dialog>
-
-
-
-
-
-            </center>
-
-
-
-
-            {/* DIALOG */}
-            <Dialog
-                open={passwordDialog}
-                onClose={cancelSubmit}
-            >
-                {
-                    success ?
-
-                        <Box>
-                            <DialogContent className={classes.dialogContainer}>
-                                <DialogContentText>
-                                    <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
-                                </DialogContentText>
-                                <DialogContentText>
-                                    Changes applied
-                                </DialogContentText>
-                                <DialogContentText>
-                                    Changes may take time.
-                                </DialogContentText>
-                            </DialogContent>
-
-                        </Box>
-
-                        :
-
-                        <Box>
-                            <DialogTitle>
-                                Enter password to confirm
-                            </DialogTitle>
-
-
-                            <DialogContent>
-                                <TextField
-                                    label='Password'
-                                    type='password'
-                                    value={userPassword}
-                                    onChange={handlePasswordChange}
-                                    error={wrongPassword || emptyPassword}
-                                    helperText={emptyPassword ? "Please enter your password" : wrongPassword && "Wrong Password!"}
-                                    fullWidth
-                                />
-                            </DialogContent>
-
-                            <DialogActions>
-                                <Button variant='contained' color='secondary' onClick={checkPassword} >Confirm</Button>
-                                <Button variant='outlined' color='secondary' onClick={cancelSubmit} >Cancel</Button>
-                            </DialogActions>
-                        </Box>
-                }
-
-            </Dialog>
+            </Box>
         </Box>
+
     )
 }

@@ -91,13 +91,13 @@ export default function TeacherFeed() {
       })
   }
 
-  const getFiles = () => {
-    axios.post('https://ursacapi.000webhostapp.com/api/getFile.php', JSON.stringify(id))
-      .then(response => {
-        setImg('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
-      })
-      .catch(err => console.log(err))
-  }
+  // const getFiles = () => {
+  //   axios.post('https://ursacapi.000webhostapp.com/api/getFile.php', JSON.stringify(id))
+  //     .then(response => {
+  //       setImges('https://ursacapi.000webhostapp.com/api/' + response.data[0].files)
+  //     })
+  //     .catch(err => console.log(err))
+  // }
 
   const showInstructorsInfo = () => {
     axios.post('https://ursacapi.000webhostapp.com/api/getInstructors.php', JSON.stringify(CookieID))
@@ -236,7 +236,6 @@ export default function TeacherFeed() {
     sessionCheck();
     showInstructorsInfo();
   }, []);
-
 
 
 

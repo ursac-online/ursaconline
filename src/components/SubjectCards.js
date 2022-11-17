@@ -11,21 +11,13 @@ const useStyle = makeStyles(theme => {
       '& .MuiCardActionArea-focusHighlight': {
         background: 'none',
       },
-      '& .MuiCardHeader-title': {
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        
-      width: '270px',
-      maxWidth: theme.spacing(23)
-      },
       '& .MuiCardHeader-subheader': {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        
-      width: '270px',
-      maxWidth: theme.spacing(23)
+
+        width: '270px',
+        maxWidth: theme.spacing(23)
       },
     },
     avatar: {
@@ -37,22 +29,27 @@ const useStyle = makeStyles(theme => {
       height: 0,
       paddingTop: '56.25%'
     },
+    titleHeaderContainer: {
+      width: theme.spacing(23),
+      [theme.breakpoints.down('xs')]: {
+        width: theme.spacing(16),
+      }
+    },
     cardLink: {
       textDecoration: 'none',
       color: 'inherit'
     },
     card: {
-      height: theme.spacing(35),
-      width: theme.spacing(35),
+      width: theme.spacing(37),
+      [theme.breakpoints.down('xs')]: {
+        width: theme.spacing(29),
+      },
       boxShadow: '',
       transition: 'all ease-out 0.1s',
-      [theme.breakpoints.down('xs')]: {
-        margin: '0 50px'
-      },
 
       '&:hover': {
-        transform: 'scale(1.01)',
-        boxShadow: '2px 5px 7px rgba(0, 0, 0, 0.25)',
+        // transform: 'scale(1.01)',
+        boxShadow: '2px 3px 7px rgba(0, 0, 0, 0.15)',
         transition: 'all ease-out 0.1s',
         [theme.breakpoints.down('md')]: {
           transform: 'none'
@@ -70,35 +67,38 @@ export default function SubjectCards({ subject }) {
   return (
     <Box className={classes.root}>
       <Card className={classes.card}>
+
+        <CardMedia
+          className={classes.media}
+          image={defaultCoverPhoto}
+        />
+
         <Link className={classes.cardLink}
           to={`/studentFeed/${subject.classroomID}`} >
-
-          <CardActionArea>
-
-            <CardMedia
-              className={classes.media}
-              image={defaultCoverPhoto}
-            />
-            <CardHeader
-              avatar={
-                <Avatar className={classes.avatar} src={subject.image} sizes='medium'>
-                  {firstName}
-                </Avatar>
-              }
-              title={subject.subjectName}
-              subheader={subject.instructor}
-            />
-
-            <Divider />
-
-            <CardContent>
-              <Typography sx={{ textAlign: 'center' }} >
-                {/* {subject.body} */}
-              </Typography>
-            </CardContent>
-            
-          </CardActionArea>
+          <CardHeader
+            avatar={
+              <Avatar className={classes.avatar} src={subject.image} sizes='medium'>
+                {firstName}
+              </Avatar>
+            }
+            title={
+              <Box className={classes.titleHeaderContainer}>
+                <Typography variant='h6' noWrap>
+                  {subject.subjectName}
+                </Typography>
+              </Box>
+            }
+            subheader={subject.instructor}
+          />
         </Link>
+
+        <Divider />
+
+        <CardContent>
+          <Typography sx={{ textAlign: 'center' }} >
+            {/* {subject.body} */}
+          </Typography>
+        </CardContent>
       </Card>
     </Box>
   )
