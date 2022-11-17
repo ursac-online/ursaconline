@@ -8,14 +8,12 @@ import Cookies from 'js-cookie';
 const useStyle = makeStyles(theme => {
     return {
         root: {
-            '& .MuiCard-root': {
-                '&:hover': {
-                    transform: 'scale(1)',
-                    boxShadow: '0px 0px 0px'
-                  }
+            maxWidth: 500,
+            padding: '40px 15px',
+            margin: '0 auto'
         }
     }
-}})
+})
 
 function JoinClass() {
     const classes = useStyle();
@@ -33,7 +31,7 @@ function JoinClass() {
 
         axios.post('https://ursacapi.000webhostapp.com/api/joinClass.php', JSON.stringify(classCode))
             .then((response) => {
-                if(response.data == 0) {
+                if (response.data == 0) {
                     setError(true)
                 } else {
                     const classroomID = response.data[0].id;
@@ -42,9 +40,9 @@ function JoinClass() {
                         Cookie
                     };
                     axios.post('https://ursacapi.000webhostapp.com/api/registerMembers.php', JSON.stringify(sendData))
-                    .then(response => {
-                        console.log(response.data);
-                    })
+                        .then(response => {
+                            console.log(response.data);
+                        })
                     navigate('/studentDashboard');
                 }
             })
@@ -52,7 +50,7 @@ function JoinClass() {
                 console.log(err);
             })
     }
-    
+
 
 
 
@@ -61,21 +59,21 @@ function JoinClass() {
             <Card variant='outlined'>
                 <CardHeader title='Join Classroom' subheader='Ask your teacher for the class code, then enter it here.' />
                 <CardContent  >
-                    
+
                     <form onSubmit={handleSubmit} >
-                        <TextField 
-                        placeholder='Class Code' 
-                        variant='outlined' 
-                        type='text'
-                        value={classCode}
-                        onChange={(e) => {setClassCode(e.target.value); setError(false)}}
-                        error={error}
-                        helperText={error && 'No classroom detected'}
+                        <TextField
+                            placeholder='Class Code'
+                            variant='outlined'
+                            type='text'
+                            value={classCode}
+                            onChange={(e) => { setClassCode(e.target.value); setError(false) }}
+                            error={error}
+                            helperText={error && 'No classroom detected'}
                         />
-                        
-                <CardActions>
-                    <Button size="small" type='submit' variant='contained' color='secondary' >Join Classroom</Button>
-                </CardActions>
+
+                        <CardActions>
+                            <Button size="small" type='submit' variant='contained' color='secondary' >Join Classroom</Button>
+                        </CardActions>
                     </form>
                 </CardContent>
             </Card>

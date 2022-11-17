@@ -168,8 +168,6 @@ export default function StudentPosts({ activity, streamFeed }) {
                         }
                     />
                     <CardContent>
-
-
                         <Typography variant='h6'>
                             {activity.title}
                         </Typography>

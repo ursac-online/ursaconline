@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { AppBar, Avatar, Drawer, IconButton, List, Menu, ListItem, ListItemText, makeStyles, MenuItem, Toolbar, Tooltip, Box, ListItemIcon, Divider, Typography, CircularProgress } from '@material-ui/core'
-import { AddCircle, ChevronLeftRounded, MenuRounded, ViewModule } from '@material-ui/icons';
+import { AddCircle, ChevronLeftRounded, CloseRounded, MenuRounded, ViewModule } from '@material-ui/icons';
 import logo4 from '../images/logo4.png'
 import logo5 from '../images/logo5.png'
 import urs from '../images/urslogo.png'
@@ -16,9 +16,6 @@ const drawerWidth = 70;
 const useStyle = makeStyles(theme => {
   return {
     root: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
 
       '& .MuiToolbar-root': {
         // boxShadow: 'rgb(35 68 101 / 5%) 0px 4px 16px, rgb(35 68 101 / 5%) 0px 4px 4px;',
@@ -91,7 +88,10 @@ const useStyle = makeStyles(theme => {
     mobileDrawer: {
       width: '100vw',
       backgroundColor: '#162276',
-      height: '100vh'
+      height: '100vh',
+    },
+    imge: {
+      textAlign: 'center'
     },
     menu: {
       marginTop: theme.spacing(5)
@@ -100,6 +100,9 @@ const useStyle = makeStyles(theme => {
       [theme.breakpoints.up('md')]: {
         display: 'none'
       }
+    },
+    xBtn: {
+      float: 'right'
     },
 
 
@@ -177,6 +180,8 @@ export default function Layout({ children }) {
     Cookies.remove('idLoggedIn');
     Cookies.remove('instructorID');
     Cookies.remove('userInfo');
+    Cookies.remove('userFirstName');
+    Cookies.remove('userName');
     navigate('/');
   }
 
@@ -238,19 +243,19 @@ export default function Layout({ children }) {
 
                 {/* Mobile Side Navigation Bar */}
                 <Drawer anchor='left' open={openDrawer} onClose={() => setOpenDrawer(false)} >
-                  <Box className={classes.mobileDrawer} role='presentation' textAlign='center' >
+                  <Box className={classes.mobileDrawer} role='presentation'>
 
-                    <IconButton>
-                      <ChevronLeftRounded onClick={() => setOpenDrawer(false)} className={classes.whiteIcon} />
+                    <IconButton onClick={() => {setOpenDrawer(false)}} className={classes.xBtn}>
+                      <CloseRounded className={classes.whiteIcon} />
                     </IconButton>
 
-                    <center>
+                    <Box mt={5} className={classes.imge}>
                       <img src={logo4} style={{ width: '70px', height: 'auto' }} alt="" />
-                    </center>
+                    </Box>
 
                     <List>
                       {studentSideLinks.map((links) => (
-                        <ListItem className={classes.lists} onClick={() => { navigate(links.path, { replace: true }) }} justifyContent='center' button key={links.id} >
+                        <ListItem className={classes.lists} onClick={() => { navigate(links.path, { replace: true }); setOpenDrawer(false) }} button key={links.id} >
                           <ListItemIcon>{links.icon}</ListItemIcon>
                           <ListItemText primary={links.text} />
                         </ListItem>
