@@ -124,7 +124,7 @@ export default function ClassroomCards({ subject, showClassrooms }) {
           <CardHeader
             title={
               <Box className={classes.titleHeaderContainer}>
-                <Typography variant='h5' noWrap>
+                <Typography variant='h5' title={subject.subjectName} noWrap>
                   {subject.subjectName}
                 </Typography>
               </Box>

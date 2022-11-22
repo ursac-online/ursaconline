@@ -148,13 +148,6 @@ export default function TeacherLogin({handleChangeToStudent}) {
 
                 <center>
                     <div>
-                        <Typography variant='caption'>
-                            <Link href="#">
-                                Forgot Password?
-                            </Link>
-                        </Typography>
-                    </div>
-                    <div>
                         <Link className={classes.changeLogin} onClick={handleChangeToStudent}>
                             <Typography variant='caption'>
                                 Student Login.

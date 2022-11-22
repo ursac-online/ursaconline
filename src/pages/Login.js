@@ -111,7 +111,7 @@ export default function Login() {
     const [selectPosition, setSelectPosition] = useState(true);
     useEffect(() => {
         setTimeout(() => {
-            fetch(' https://ursac-online.github.io/ursaconline/')
+            fetch(' https://curious-concha-1071d7.netlify.app/')
                 .then(setIsPending(false))
                 .catch(err => {
                     console.log(err.message)
@@ -120,7 +120,7 @@ export default function Login() {
         }, 1510);
         sessionCheck();
         setTimeout(() => {
-            fetch(' https://ursac-online.github.io/ursaconline/')
+            fetch(' https://curious-concha-1071d7.netlify.app/')
                 .then(setIsLoading(true))
         }, 1500);
     }, [])

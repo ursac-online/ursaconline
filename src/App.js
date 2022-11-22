@@ -49,7 +49,7 @@ const theme = createTheme({
       main: '#162276'
     }
   }
-});
+}); 
 
 
 function App() {

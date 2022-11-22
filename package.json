@@ -3,6 +3,7 @@
   "name": "ursaconline",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://ursacapi.000webhostapp.com/api/",
   "dependencies": {
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
@@ -17,6 +18,7 @@
     "peerjs": "^1.4.7",
     "react": "^18.1.0",
     "react-copy-to-clipboard": "^5.1.0",
+    "react-doc-viewer": "^0.1.5",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
