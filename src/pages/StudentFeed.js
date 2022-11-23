@@ -12,7 +12,10 @@ const useStyle = makeStyles(theme => {
   return {
     paper: {
       padding: theme.spacing(2)
-    }
+    },
+    posts: {
+      width: "100%",
+    },
   }
 })
 
@@ -115,7 +118,7 @@ export default function StudentFeed() {
   const [postData, setPostData] = useState({
     title: '',
     body: '',
-    name: 'Phil'
+    name: ''
   });
 
   const handleChange = (event) => {
@@ -327,7 +330,7 @@ export default function StudentFeed() {
 
               :
 
-              <Box mr={2}>
+              <Box className={classes.posts}>
                 {activities.map(activity => (
                   <Grid item xs={12} key={activity.id}>
                     <Box mt={5}>

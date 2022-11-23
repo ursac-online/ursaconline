@@ -9,6 +9,7 @@ import {
   CardHeader,
   Divider,
   Grid,
+  Icon,
   IconButton,
   List,
   ListItem,
@@ -28,6 +29,7 @@ import { format } from "date-fns";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import {
+  Check,
   DeleteForever,
   DescriptionRounded,
   FiberManualRecordRounded,
@@ -82,7 +84,7 @@ const useStyle = makeStyles((theme) => {
     },
     classheader: {
       "& .MuiCardHeader-subheader": {
-        maxWidth: theme.spacing(15),
+        maxWidth: theme.spacing(10),
         padding: 0,
         fontSize: ".7em",
       },
@@ -127,6 +129,13 @@ const useStyle = makeStyles((theme) => {
         background: "#b52626",
       },
     },
+    actionContainerBlack: {
+      background: '#333',
+      transition: ".2s",
+      "&:hover": {
+        background: "#222",
+      },
+    },
     onlyActivity: {
       paddingTop: 0,
       paddingBottom: 0,
@@ -140,6 +149,7 @@ export default function StudentPosts({ activity, streamFeed }) {
   const [focused, setFocused] = useState("");
   const [fileCollection, setFileCollection] = useState([]);
   const storeFiles = () => {
+    
     for (const key in file) {
       setFileCollection((fileCollection) => [
         ...fileCollection,
@@ -151,16 +161,8 @@ export default function StudentPosts({ activity, streamFeed }) {
     }
   };
 
-  const isDisplay = () => {
-    if (activity.isAnActivity == 1) {
-      return "block";
-    } else {
-      return "none";
-    }
-  };
-  // const downloadFile = (url) => {
-  //   saveAs(url);
-  // };
+  const StudentCookie = Cookies.get("idLoggedIn");
+  const InstructorCookie = Cookies.get("instructorID");
 
   const removePost = () => {
     setOpenMenu(false);
@@ -277,29 +279,59 @@ export default function StudentPosts({ activity, streamFeed }) {
 
               <Divider />
 
-              {new Date() > new Date(activity.due) ? (
-                <Box className={classes.actionContainerRed}>
-                  <Link
-                    to={`/studentActivity/${activity.id}`}
-                    className={classes.activityLink}
-                  >
-                    <CardActions className={classes.linkText}>
-                      Open Activity (Missing)
-                    </CardActions>
-                  </Link>
+              {InstructorCookie ? (
+                <Box>
+                {new Date() > new Date(activity.due) ? (
+                  <Box className={classes.actionContainerBlack}>
+                    <Link
+                      to={`/handleActivity/${activity.id}`}
+                      className={classes.activityLink}
+                    >
+                      <CardActions className={classes.linkText}>
+                        Activity Due Done  <Icon><Check /></Icon>
+                      </CardActions>
+                    </Link>
+                  </Box>
+                ) : (
+                  <Box className={classes.actionContainer}>
+                    <Link
+                      to={`/handleActivity/${activity.id}`}
+                      className={classes.activityLink}
+                    >
+                      <CardActions className={classes.linkText}>
+                        Activity assigned
+                      </CardActions>
+                    </Link>
+                  </Box>
+                )}
+              </Box>
+              ) : StudentCookie ? (
+                <Box>
+                  {new Date() > new Date(activity.due) ? (
+                    <Box className={classes.actionContainerRed}>
+                      <Link
+                        to={`/studentActivity/${activity.id}`}
+                        className={classes.activityLink}
+                      >
+                        <CardActions className={classes.linkText}>
+                          Open Activity (Missing)
+                        </CardActions>
+                      </Link>
+                    </Box>
+                  ) : (
+                    <Box className={classes.actionContainer}>
+                      <Link
+                        to={`/studentActivity/${activity.id}`}
+                        className={classes.activityLink}
+                      >
+                        <CardActions className={classes.linkText}>
+                          Open Activity
+                        </CardActions>
+                      </Link>
+                    </Box>
+                  )}
                 </Box>
-              ) : (
-                <Box className={classes.actionContainer}>
-                  <Link
-                    to={`/studentActivity/${activity.id}`}
-                    className={classes.activityLink}
-                  >
-                    <CardActions className={classes.linkText}>
-                      Open Activity
-                    </CardActions>
-                  </Link>
-                </Box>
-              )}
+              ) : null}
             </Box>
           )}
 

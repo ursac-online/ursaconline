@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core";
 import {
   ChevronLeftRounded,
+  Close,
   CloseRounded,
   DescriptionRounded,
 } from "@material-ui/icons";
@@ -29,15 +30,14 @@ const smwidth = 20;
 const useStyle = makeStyles((theme) => {
   return {
     root: {
-        width: `calc(100% - ${width})`,
-        marginLeft: width,
-        marginRight: width,
-        [theme.breakpoints.down('sm')]: {
-            width: `calc(100% - ${smwidth})`,
-            marginLeft: smwidth,
-            marginRight: smwidth,
-        }
-
+      width: `calc(100% - ${width})`,
+      marginLeft: width,
+      marginRight: width,
+      [theme.breakpoints.down("sm")]: {
+        width: `calc(100% - ${smwidth})`,
+        marginLeft: smwidth,
+        marginRight: smwidth,
+      },
     },
     activity: {
       padding: theme.spacing(2),
@@ -74,10 +74,7 @@ function StudentActivity() {
     }
   }
 
-  const [post, setPost] = useState({});
-  const [isLoaded, setisLoaded] = useState(false);
-  const [currentDate, setCurrentDate] = useState("");
-  const [dueDate, setDueDate] = useState("");
+ 
 
   const [fileCollection, setFileCollection] = useState([]);
   const { id } = useParams();
@@ -100,7 +97,6 @@ function StudentActivity() {
           setCurrentDate(format(date, "MMM dd, yyyy hh:mm aaa"));
           const dueDateData = new Date(response.data[0].due);
           setDueDate(format(dueDateData, "MMM dd hh:mm aaa"));
-
           const file = JSON.parse(response.data[0].files);
           for (const key in file) {
             setFileCollection((fileCollection) => [
@@ -115,10 +111,68 @@ function StudentActivity() {
       });
   }
 
+
+
+  const [post, setPost] = useState({});
+  const [currentDate, setCurrentDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [fileOnChange, setFileOnChange] = useState(true);
+  const [filePreview, setFilePreview] = useState([]);
+
+  const handleFormChange = (e) => {
+    let currentFile = e.target.files;
+    setFileOnChange(true);
+
+    for (let i = 0; i < currentFile.length; i++) {
+      const file = currentFile[i];
+      setFilePreview((filePreview) => [...filePreview, file]);
+    }
+  };
+  
+  console.log(post);
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    let res = await uploadFile(filePreview, post);
+    console.log(res.data);
+  };
+
+  const uploadFile = async (filePreview) => {
+    const formdata = new FormData();
+
+    for (let i = 0; i < filePreview.length; i++) {
+      formdata.append("files[]", filePreview[i]);
+    }
+
+    formdata.append("activityName", post.title)
+    formdata.append("activityBody", post.body)
+    formdata.append("points", post.points)
+    formdata.append("studentName", Cookies.get('userName'))
+    formdata.append("activityID", id)
+    formdata.append("submit", 'submit')
+
+    return await axios({
+      url: "https://ursacapi.000webhostapp.com/api/submitActivity.php",
+      method: "POST",
+      headers: {
+        "content-type": "multipart/form-data",
+      },
+      data: formdata,
+    });
+  };
+
+  const checkFileLength = () => {
+    if (filePreview.length == 0) {
+      setFileOnChange(false);
+    } else {
+      setFileOnChange(true);
+    }
+  };
+
   const dateTo = new Date();
   const dateToday = format(dateTo, "MMM dd, yyyy hh:mm aaa");
 
-  console.log(dueDate);
   useEffect(() => {
     getPost();
     // sessionCheck()
@@ -158,12 +212,7 @@ function StudentActivity() {
                 <Grid container spacing={1} justifyContent="space-between">
                   <Grid item>
                     <Typography variant="body1">
-                        {
-                            post.points == 0 ?
-                            "Not Graded"
-                            :
-                            post.points
-                        }
+                      {post.points == 0 ? "Not Graded" : post.points}
                     </Typography>
                   </Grid>
                   <Grid item></Grid>
@@ -223,23 +272,60 @@ function StudentActivity() {
                   </Grid>
                 </Grid>
 
-                <Button
-                  className={classes.btn}
-                  color="secondary"
-                  variant="outlined"
-                  fullWidth
-                >
-                  Upload file
-                </Button>
+                <form onSubmit={handleFormSubmit}>
+                  {fileOnChange ? (
+                    <Box>
+                      {filePreview.map((eachFile) => (
+                        <ListItem key={eachFile.name} className={classes.list}>
+                          <ListItemText>{eachFile.name}</ListItemText>
+                          <IconButton
+                            onClick={() => {
+                              setFilePreview(
+                                filePreview.filter(
+                                  (thisFile) => thisFile.name !== eachFile.name
+                                )
+                              );
+                              checkFileLength();
+                            }}
+                          >
+                            <Close />
+                          </IconButton>
+                        </ListItem>
+                      ))}
+                    </Box>
+                  ) : null}
 
-                <Button
-                  className={classes.btn}
-                  color="secondary"
-                  variant="contained"
-                  fullWidth
-                >
-                  Submit work
-                </Button>
+                  <input
+                    onChange={handleFormChange}
+                    style={{ display: "none" }}
+                    type="file"
+                    name="files[]"
+                    multiple
+                    id="attach-file"
+                  />
+                  <label htmlFor="attach-file">
+                    <Button
+                      className={classes.btn}
+                      color="secondary"
+                      variant="outlined"
+                      fullWidth
+                      component="span"
+                    >
+                      Upload
+                    </Button>
+                  </label>
+
+                  <Button
+                    className={classes.btn}
+                    type='submit'
+                    name='submit'
+                    color="secondary"
+                    variant="contained"
+                    fullWidth
+                  >
+                    Submit work
+                  </Button>
+                </form>
               </Paper>
             </Grid>
           </Grid>

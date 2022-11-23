@@ -208,6 +208,7 @@ export default function TeacherFeed() {
       setFileOnChange(true);
     }
   };
+  
 
   const [attachActivity, setAttachActivity] = useState(false);
   const [makeActivity, setMakeActivity] = useState(false);
