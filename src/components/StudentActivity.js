@@ -68,14 +68,18 @@ function StudentActivity() {
   const navigate = useNavigate();
   const Cookie = Cookies.get("idLoggedIn");
 
+  const [post, setPost] = useState({});
+  const [currentDate, setCurrentDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [fileOnChange, setFileOnChange] = useState(true);
+  const [filePreview, setFilePreview] = useState([]);
+  const [filePreviews, setFilePreviews] = useState([]);
+
   function sessionCheck() {
     if (!Cookie) {
       navigate("/");
     }
   }
-
- 
-
   const [fileCollection, setFileCollection] = useState([]);
   const { id } = useParams();
   async function getPost() {
@@ -110,14 +114,33 @@ function StudentActivity() {
         }
       });
   }
+  const [submitted, setSubmitted] = useState(false);
 
+  const checkIfSubmitted = () => {
+    const sendData = {
+      updateID: id,
+      studentID: Cookie
+    };
+    axios
+      .post(
+        "https://ursacapi.000webhostapp.com/api/isSubmitted.php",
+        JSON.stringify(sendData)
+      )
+      .then((response) => {
+        if (response.data.length > 0) {
+          const files = JSON.parse(response.data[0].filesSubmitted);
+          const keys = Object.values(files);
 
+          for (let i = 0; i < keys.length; i++) {
+            setFilePreviews([...keys]);
+          }
 
-  const [post, setPost] = useState({});
-  const [currentDate, setCurrentDate] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [fileOnChange, setFileOnChange] = useState(true);
-  const [filePreview, setFilePreview] = useState([]);
+          setSubmitted(true);
+        } else {
+          console.log("not submitted");
+        }
+      });
+  };
 
   const handleFormChange = (e) => {
     let currentFile = e.target.files;
@@ -128,14 +151,13 @@ function StudentActivity() {
       setFilePreview((filePreview) => [...filePreview, file]);
     }
   };
-  
-  console.log(post);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    let res = await uploadFile(filePreview, post);
-    console.log(res.data);
+    await uploadFile(filePreview, post);
+    setSubmitted(true);
+    checkIfSubmitted();
   };
 
   const uploadFile = async (filePreview) => {
@@ -145,12 +167,13 @@ function StudentActivity() {
       formdata.append("files[]", filePreview[i]);
     }
 
-    formdata.append("activityName", post.title)
-    formdata.append("activityBody", post.body)
-    formdata.append("points", post.points)
-    formdata.append("studentName", Cookies.get('userName'))
-    formdata.append("activityID", id)
-    formdata.append("submit", 'submit')
+    formdata.append("activityName", post.title);
+    formdata.append("activityBody", post.body);
+    formdata.append("points", post.points);
+    formdata.append("studentName", Cookies.get("userName"));
+    formdata.append("studentID", Cookie);
+    formdata.append("activityID", id);
+    formdata.append("submit", "submit");
 
     return await axios({
       url: "https://ursacapi.000webhostapp.com/api/submitActivity.php",
@@ -175,7 +198,7 @@ function StudentActivity() {
 
   useEffect(() => {
     getPost();
-    // sessionCheck()
+    checkIfSubmitted();
   }, []);
 
   return (
@@ -264,7 +287,19 @@ function StudentActivity() {
                     <Typography variant="h6">Your work</Typography>
                   </Grid>
                   <Grid item>
-                    {dateToday > dueDate ? (
+                    {submitted ? (
+                      dateToday > dueDate ? (
+                        <Box ml={7}>
+                          <Typography variant="caption">
+                            Turned in late
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Box ml={7}>
+                          <Typography variant="caption">Turned in</Typography>
+                        </Box>
+                      )
+                    ) : dateToday > dueDate ? (
                       <Typography variant="caption" color="error">
                         Missing
                       </Typography>
@@ -275,23 +310,39 @@ function StudentActivity() {
                 <form onSubmit={handleFormSubmit}>
                   {fileOnChange ? (
                     <Box>
-                      {filePreview.map((eachFile) => (
-                        <ListItem key={eachFile.name} className={classes.list}>
-                          <ListItemText>{eachFile.name}</ListItemText>
-                          <IconButton
-                            onClick={() => {
-                              setFilePreview(
-                                filePreview.filter(
-                                  (thisFile) => thisFile.name !== eachFile.name
-                                )
-                              );
-                              checkFileLength();
-                            }}
-                          >
-                            <Close />
-                          </IconButton>
-                        </ListItem>
-                      ))}
+                      {submitted ? (
+                        <Box>
+                          {filePreviews.map((eachFile) => (
+                            <ListItem key={eachFile} className={classes.list}>
+                              <ListItemText>{eachFile}</ListItemText>
+                            </ListItem>
+                          ))}
+                        </Box>
+                      ) : (
+                        <Box>
+                          {filePreview.map((eachFile) => (
+                            <ListItem
+                              key={eachFile.name}
+                              className={classes.list}
+                            >
+                              <ListItemText>{eachFile.name}</ListItemText>
+                              <IconButton
+                                onClick={() => {
+                                  setFilePreview(
+                                    filePreview.filter(
+                                      (thisFile) =>
+                                        thisFile.name !== eachFile.name
+                                    )
+                                  );
+                                  checkFileLength();
+                                }}
+                              >
+                                <Close />
+                              </IconButton>
+                            </ListItem>
+                          ))}
+                        </Box>
+                      )}
                     </Box>
                   ) : null}
 
@@ -303,28 +354,46 @@ function StudentActivity() {
                     multiple
                     id="attach-file"
                   />
-                  <label htmlFor="attach-file">
-                    <Button
-                      className={classes.btn}
-                      color="secondary"
-                      variant="outlined"
-                      fullWidth
-                      component="span"
-                    >
-                      Upload
-                    </Button>
-                  </label>
 
-                  <Button
-                    className={classes.btn}
-                    type='submit'
-                    name='submit'
-                    color="secondary"
-                    variant="contained"
-                    fullWidth
-                  >
-                    Submit work
-                  </Button>
+                  {submitted ? (
+                    <Box>
+                      {" "}
+                      <Button
+                        className={classes.btn}
+                        color="secondary"
+                        variant="outlined"
+                        fullWidth
+                        disabled
+                      >
+                        Activity Submitted
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <label htmlFor="attach-file">
+                        <Button
+                          className={classes.btn}
+                          color="secondary"
+                          variant="outlined"
+                          fullWidth
+                          component="span"
+                        >
+                          Upload
+                        </Button>
+                      </label>
+
+                      <Button
+                        className={classes.btn}
+                        type="submit"
+                        name="submit"
+                        color="secondary"
+                        variant="contained"
+                        fullWidth
+                      >
+                        Submit work
+                      </Button>
+                    </Box>
+                  )}
                 </form>
               </Paper>
             </Grid>

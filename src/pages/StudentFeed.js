@@ -183,6 +183,9 @@ export default function StudentFeed() {
       formdata.append("files[]", filePreview[i]);
     }
 
+    formdata.append("isAnActivity", 0);
+    formdata.append("points", 0);
+    formdata.append("dueDate", '0000-00-00 00:00:00');
     formdata.append("title", postData.title)
     formdata.append("body", postData.body)
     formdata.append("name", postData.name)

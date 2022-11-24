@@ -130,7 +130,7 @@ const useStyle = makeStyles((theme) => {
       },
     },
     actionContainerBlack: {
-      background: '#333',
+      background: "#333",
       transition: ".2s",
       "&:hover": {
         background: "#222",
@@ -146,10 +146,10 @@ const useStyle = makeStyles((theme) => {
 export default function StudentPosts({ activity, streamFeed }) {
   const classes = useStyle();
   const file = JSON.parse(activity.files);
+  const id = activity.id;
   const [focused, setFocused] = useState("");
   const [fileCollection, setFileCollection] = useState([]);
   const storeFiles = () => {
-    
     for (const key in file) {
       setFileCollection((fileCollection) => [
         ...fileCollection,
@@ -163,6 +163,28 @@ export default function StudentPosts({ activity, streamFeed }) {
 
   const StudentCookie = Cookies.get("idLoggedIn");
   const InstructorCookie = Cookies.get("instructorID");
+
+  const [submitted, setSubmitted] = useState(false);
+
+  const checkIfSubmitted = () => {
+    const sendData = {
+      updateID: id,
+      studentID: StudentCookie
+    };
+    axios
+      .post(
+        "https://ursacapi.000webhostapp.com/api/isSubmitted.php",
+        JSON.stringify(sendData)
+      )
+      .then((response) => {
+        if (response.data.length > 0) {
+          setSubmitted(true);
+          console.log(response.data);
+        } else {
+          console.log("not submitted");
+        }
+      });
+  };
 
   const removePost = () => {
     setOpenMenu(false);
@@ -180,6 +202,8 @@ export default function StudentPosts({ activity, streamFeed }) {
       .catch((err) => console.log(err));
   };
 
+
+  const [isStudent, setIsStudent] = useState('block');
   const [openMenu, setOpenMenu] = useState(false);
   const [anchor, setAnchor] = useState(null);
   const handleClickMenu = (event) => {
@@ -195,6 +219,10 @@ export default function StudentPosts({ activity, streamFeed }) {
 
   useEffect(() => {
     storeFiles();
+    if (Cookies.get("idLoggedIn")) {
+      checkIfSubmitted();
+      setIsStudent('none')
+    }
   }, []);
 
   const date = new Date(activity.dateCreated);
@@ -233,6 +261,7 @@ export default function StudentPosts({ activity, streamFeed }) {
             action={
               <IconButton
                 aria-label="settings"
+                style={{display: isStudent}}
                 className={focused}
                 onClick={handleClickMenu}
               >
@@ -281,53 +310,74 @@ export default function StudentPosts({ activity, streamFeed }) {
 
               {InstructorCookie ? (
                 <Box>
-                {new Date() > new Date(activity.due) ? (
-                  <Box className={classes.actionContainerBlack}>
-                    <Link
-                      to={`/handleActivity/${activity.id}`}
-                      className={classes.activityLink}
-                    >
-                      <CardActions className={classes.linkText}>
-                        Activity Due Done  <Icon><Check /></Icon>
-                      </CardActions>
-                    </Link>
-                  </Box>
-                ) : (
-                  <Box className={classes.actionContainer}>
-                    <Link
-                      to={`/handleActivity/${activity.id}`}
-                      className={classes.activityLink}
-                    >
-                      <CardActions className={classes.linkText}>
-                        Activity assigned
-                      </CardActions>
-                    </Link>
-                  </Box>
-                )}
-              </Box>
-              ) : StudentCookie ? (
-                <Box>
                   {new Date() > new Date(activity.due) ? (
-                    <Box className={classes.actionContainerRed}>
+                    <Box className={classes.actionContainerBlack}>
                       <Link
-                        to={`/studentActivity/${activity.id}`}
+                        to={`/handleActivity/${activity.id}`}
                         className={classes.activityLink}
                       >
                         <CardActions className={classes.linkText}>
-                          Open Activity (Missing)
+                          Activity Due Done{" "}
+                          <Icon>
+                            <Check />
+                          </Icon>
                         </CardActions>
                       </Link>
                     </Box>
                   ) : (
                     <Box className={classes.actionContainer}>
                       <Link
+                        to={`/handleActivity/${activity.id}`}
+                        className={classes.activityLink}
+                      >
+                        <CardActions className={classes.linkText}>
+                          Activity assigned
+                        </CardActions>
+                      </Link>
+                    </Box>
+                  )}
+                </Box>
+              ) : StudentCookie ? (
+                <Box>
+                  {submitted ? (
+                    <Box className={classes.actionContainerBlack}>
+                      <Link
                         to={`/studentActivity/${activity.id}`}
                         className={classes.activityLink}
                       >
                         <CardActions className={classes.linkText}>
-                          Open Activity
+                          Activity Submitted{" "}
+                          <Icon>
+                            <Check />
+                          </Icon>
                         </CardActions>
                       </Link>
+                    </Box>
+                  ) : (
+                    <Box>
+                      {new Date() > new Date(activity.due) ? (
+                        <Box className={classes.actionContainerRed}>
+                          <Link
+                            to={`/studentActivity/${activity.id}`}
+                            className={classes.activityLink}
+                          >
+                            <CardActions className={classes.linkText}>
+                              Open Activity (Missing)
+                            </CardActions>
+                          </Link>
+                        </Box>
+                      ) : (
+                        <Box className={classes.actionContainer}>
+                          <Link
+                            to={`/studentActivity/${activity.id}`}
+                            className={classes.activityLink}
+                          >
+                            <CardActions className={classes.linkText}>
+                              Open Activity
+                            </CardActions>
+                          </Link>
+                        </Box>
+                      )}
                     </Box>
                   )}
                 </Box>

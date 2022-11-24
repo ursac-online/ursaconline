@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
+import ursacOnlineLogo from '../images/logo5.png'
 
 const drawerWidth = 70;
 
@@ -125,8 +126,8 @@ export default function AdminLayout({ children }) {
     setAnchor(null)
   }
 
-
-  const [profilePicture, setProfilePicture] = useState(null)
+  const defaultProfilePic = ursacOnlineLogo;
+  const [profilePicture, setProfilePicture] = useState(defaultProfilePic)
 
 
   const studentSideLinks = [

@@ -288,6 +288,7 @@ export default function TeacherFeed() {
           <Grid item xs={12}>
             <h1>{subjectInfo.subjectName}</h1>
             <p>{subjectInfo.yearSection}</p>
+            <p>Class Code: {subjectInfo.classroomCode}</p>
           </Grid>
 
           <Grid item xs={12}>
