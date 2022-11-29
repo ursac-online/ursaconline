@@ -67,6 +67,8 @@ function HandlingActivity() {
   const classes = useStyle();
   const { id } = useParams();
 
+  const [Id, setId] = useState(null);
+  const [btnDisable, setBtnDisable] = useState(false);
   const [fileCollection, setFileCollection] = useState([]);
   const [submittedActivities, setSubmittedActivities] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -96,6 +98,12 @@ function HandlingActivity() {
         JSON.stringify(sendData)
       )
       .then((res) => {
+        setId(res.data[0].studentID);
+        if (res.data[0].returned === 0) {
+          setBtnDisable(true);
+        } else {
+          setBtnDisable(false);
+        }
         const file = JSON.parse(res.data[0].filesSubmitted);
         for (const key in file) {
           setFileCollection((fileCollection) => [
@@ -111,19 +119,29 @@ function HandlingActivity() {
       .catch((err) => console.log(err));
   };
 
-  const [data, setData] = useState({
-    studentID: "",
-    grade: "",
-  });
+  const [data, setData] = useState(null);
   const handleScoreChange = (e) => {
-    const name = e.target.name;
+    const keys = e.target.name;
     const value = e.target.value;
 
-    setData((data) => ({ ...data, [name]: value }));
+    setData({ [keys]: value, studentID: Id });
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+
+    if (data == null) {
+      console.log("no score");
+    } else {
+      axios
+        .post(
+          "https://ursacapi.000webhostapp.com/api/updateReturn.php",
+          JSON.stringify(data)
+        )
+        .then((res) => {
+          console.log(res.data);
+        });
+    }
   };
 
   useEffect(() => {
@@ -181,7 +199,7 @@ function HandlingActivity() {
                                   />
                                   <Input
                                     className={classes.input}
-                                    name="grade"
+                                    name="grades"
                                     placeholder="Add grade"
                                     type="number"
                                     fullWidth
@@ -234,13 +252,30 @@ function HandlingActivity() {
                         </Box>
                       ) : null}
                     </List>
-                    <Button
-                      className={classes.rtrnBtn}
-                      variant="contained"
-                      color="secondary"
-                    >
-                      Return
-                    </Button>
+                    {fileCollection.length > 0 ? (
+                      <Box>
+                        {btnDisable ? (
+                          <Button
+                            type="submit"
+                            className={classes.rtrnBtn}
+                            variant="contained"
+                            color="secondary"
+                          >
+                            Return
+                          </Button>
+                        ) : (
+                          <Button
+                            type="submit"
+                            className={classes.rtrnBtn}
+                            variant="contained"
+                            color="secondary"
+                            disabled
+                          >
+                            Returned
+                          </Button>
+                        )}
+                      </Box>
+                    ) : null}
                   </Box>
                 </Container>
               </Grid>
