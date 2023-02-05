@@ -1,17 +1,12 @@
 import {
   Box,
-  CircularProgress,
-  Container,
-  Grid,
-  makeStyles,
-  Menu,
-  MenuItem,
-  Typography,
+  CircularProgress, Grid,
+  makeStyles, MenuItem
 } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import ClassroomCards from "../components/ClassroomCards";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ClassroomCards from "../components/classroom/ClassroomCards";
 
 import Cookies from "js-cookie";
 

@@ -1,6 +1,6 @@
+import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import * as React from "react";
-import { ThemeProvider, createTheme } from "@material-ui/core/styles";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,35 +8,45 @@ import Register from "./pages/Register";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentFeed from "./pages/StudentFeed";
 
-import TeacherLayout from "./components/TeacherLayout";
+import TeacherLayout from "./components/teacher/TeacherLayout";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherFeed from "./pages/TeacherFeed";
 
-import StudentLayout from "./components/StudentLayout";
+import StudentLayout from "./components/student/StudentLayout";
+import VideoApp from "./components/test/VideoApp";
 import Quiz from "./pages/Quiz";
-import VideoApp from "./components/VideoApp";
 
 import BasicTable from "./components/test/BasicTable";
 import CreateClassroom from "./pages/CreateClassroom";
 
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminTable from "./components/admin/AdminTable";
+import ClassroomTable from "./components/classroom/ClassroomTable";
+import {
+  default as JoinClass,
+  default as ManageAccount,
+} from "./components/JoinClass";
+import StudentActivity from "./components/student/StudentActivity";
+import StudentTable from "./components/student/StudentTable";
+import TeacherTable from "./components/teacher/TeacherTable";
 import Admin from "./pages/admin/Admin";
-import AdminLayout from "./components/AdminLayout";
-import CreateAdmin from "./pages/admin/CreateAdmin";
-import StudentTable from "./components/tables/StudentTable";
-import TeacherTable from "./components/tables/TeacherTable";
-import AdminTable from "./components/tables/AdminTable";
-import ClassroomTable from "./components/tables/ClassroomTable";
 import AdminLogin from "./pages/admin/AdminLogin";
-import { Typography } from "@material-ui/core";
-import ManageAccount from "./components/JoinClass";
-import JoinClass from "./components/JoinClass";
-import StudentActivity from "./components/StudentActivity";
+import CreateAdmin from "./pages/admin/CreateAdmin";
+import CreateQuiz from "./pages/CreateQuiz";
 import EditPassword from "./pages/EditPassword";
 import EditProfile from "./pages/EditProfile";
+import HandlingActivity from "./pages/HandlingActivity";
 import InstructorEditPassword from "./pages/InstructorEditPassword";
 import InstructorEditProfile from "./pages/InstructorEditProfile";
-import CreateQuiz from "./pages/CreateQuiz";
-import HandlingActivity from "./pages/HandlingActivity";
+import Layout from "./components/test/layouts/Layout";
+import TodoManager from "./components/test/To Do App/TodoManager";
+import { IconButton } from "@material-ui/core";
+import { AddCircle, ViewModule } from "@material-ui/icons";
+import Dashboard from "./components/test/Dashboard";
+import { useState } from "react";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
+import axios from "axios";
 
 const theme = createTheme({
   typography: {
@@ -53,6 +63,87 @@ const theme = createTheme({
 });
 
 function App() {
+  // const [userRole, setUserRole] = useState("Guest");
+  // const [Cookie, setCookie] = useState(null);
+
+  // const checkRoles = () => {
+  //   console.log("load");
+  //   if (Cookies.get("idLoggedIn")) {
+  //     setUserRole("Student");
+  //     setCookie(Cookies.get("idLoggedIn"));
+  //     showStudentsInfo(Cookie);
+  //   } else if (Cookies.get("instructorID")) {
+  //     setUserRole("Instructor");
+  //     setCookie(Cookies.get("instructorID"));
+  //     showInstructorsInfo(Cookie);
+  //   } else if (Cookies.get("adminID")) {
+  //     setUserRole("Admin");
+  //     setCookie(Cookies.get("adminID"));
+  //   } else {
+  //     setUserRole("Guest");
+  //     setCookie(null);
+  //   }
+  // };
+
+  // // PASS THE USER INFO to the User Preferences
+  // const instructorsEndpointID =
+  //   "https://ursacapi.000webhostapp.com/api/getInstructors.php";
+  // const studentsEndpointID =
+  //   "https://ursacapi.000webhostapp.com/api/getStudents.php";
+  // const [userName, setUserName] = useState("");
+  // const showStudentsInfo = async (data) => {
+  //   if (data) {
+  //     try {
+  //       const response = await axios.post(
+  //         studentsEndpointID,
+  //         JSON.stringify(data)
+  //       );
+  //       setUserName(
+  //         response.data[0].firstName + " " + response.data[0].lastName
+  //       );
+  //     } catch (error) {
+  //       console.log("Error: " + error);
+  //     }
+  //   }
+  // };
+
+  // const showInstructorsInfo = async (data) => {
+  //   if (data) {
+  //     try {
+  //       const response = await axios.post(
+  //         instructorsEndpointID,
+  //         JSON.stringify(data)
+  //       );
+  //       setUserName(
+  //         response.data[0].firstName + " " + response.data[0].lastName
+  //       );
+  //     } catch (error) {
+  //       console.log("Error: " + error);
+  //     }
+  //   }
+  // };
+
+  // const logout = () => {
+  //   Cookies.remove("idLoggedIn");
+  //   Cookies.remove("instructorID");
+  //   Cookies.remove("userInfo");
+  //   setUserName("");
+  //   setUserRole("Guest");
+  // };
+
+  // const userIconLinks = [
+  //   <IconButton size="medium">
+  //     <ViewModule style={{ color: "white" }} />
+  //   </IconButton>,
+  //   <IconButton size="medium">
+  //     <AddCircle style={{ color: "white" }} />
+  //   </IconButton>,
+  // ];
+
+  // useEffect(() => {
+  //   checkRoles();
+  // }, [Cookie, userName]);
+
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
@@ -254,6 +345,52 @@ function App() {
           <Route path="/videoApp" element={<VideoApp />} />
 
           <Route path="/basicTable" element={<BasicTable />} />
+
+          {/* NEW LAYOUT */}
+          {/* <Route
+            path="/studentsDashboard"
+            element={
+              <Layout
+                linksFromApp={userIconLinks}
+                userNameFromApp={userName}
+                roleFromApp={userRole}
+                logout={logout}
+              >
+                <StudentDashboard />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/studentsFeed/:id"
+            element={
+              <Layout
+                linksFromApp={userIconLinks}
+                userNameFromApp={userName}
+                roleFromApp={userRole}
+                logout={logout}
+              >
+                <StudentFeed />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/instructorsDashboard"
+            element={
+              <Layout
+                linksFromApp={userIconLinks}
+                userNameFromApp={userName}
+                roleFromApp={userRole}
+                logout={logout}
+              >
+                <TeacherDashboard />
+              </Layout>
+            }
+          /> */}
+
+          <Route path="/practice" element={<TodoManager />} />
+
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

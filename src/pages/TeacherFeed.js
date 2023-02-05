@@ -1,41 +1,19 @@
-import { React, useState } from "react";
 import {
-  Container,
-  Grid,
-  Paper,
-  TextField,
-  makeStyles,
-  Button,
-  IconButton,
-  Tooltip,
-  MenuItem,
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Divider,
-  FormLabel,
-  Slide,
-  Switch,
+  Box, Button, Container,
+  Grid, IconButton, List,
+  ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Paper, Switch, TextField, Tooltip
 } from "@material-ui/core";
-import StudentPosts from "../components/StudentPosts";
 import {
-  Assessment,
-  Assignment,
   AttachFileRounded,
   Close,
-  DescriptionRounded,
-  ImageAspectRatioRounded,
-  ImageRounded,
-  InsertDriveFileRounded,
-  MovieCreationRounded,
-  PictureAsPdfRounded,
+  DescriptionRounded, ImageRounded, MovieCreationRounded,
+  PictureAsPdfRounded
 } from "@material-ui/icons";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { format } from "date-fns";
 import axios from "axios";
-import { useEffect } from "react";
+import { format } from "date-fns";
+import { React, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import StudentPosts from "../components//student/StudentPosts";
 
 import Cookies from "js-cookie";
 import CreateActivity from "./CreateActivity";
@@ -67,7 +45,9 @@ export default function TeacherFeed() {
     if (!CookieID) {
       navigate("/");
     }
+
   }
+
 
   const [subjectInfo, setSubjectInfo] = useState({});
 
@@ -88,7 +68,7 @@ export default function TeacherFeed() {
         JSON.stringify(sendData)
       )
       .then((response) => {
-        if (response.data == 0) {
+        if (response.data === 0) {
           console.log("classroom ID not found");
         } else {
           setSubjectInfo(response.data[0]);
@@ -103,7 +83,7 @@ export default function TeacherFeed() {
         JSON.stringify(id)
       )
       .then((response) => {
-        if (response.data == 0) {
+        if (response.data === 0) {
           setNoPost(true);
         } else {
           setActivities(response.data.reverse());
@@ -202,7 +182,7 @@ export default function TeacherFeed() {
   };
 
   const checkFileLength = () => {
-    if (filePreview.length == 1) {
+    if (filePreview.length === 1) {
       setFileOnChange(false);
     } else {
       setFileOnChange(true);
@@ -220,7 +200,7 @@ export default function TeacherFeed() {
   const toggleChecked = (e) => {
     console.log(e.target.checked);
 
-    if (e.target.checked == true) {
+    if (e.target.checked === true) {
       setIsTrue(1);
     } else {
       setIsTrue(0);

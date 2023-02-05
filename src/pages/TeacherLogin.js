@@ -33,7 +33,7 @@ const useStyle = makeStyles(theme => {
     }
 });
 
-export default function TeacherLogin({handleChangeToStudent}) {
+export default function TeacherLogin(props) {
     const navigate = useNavigate();
     const classes = useStyle();
 
@@ -67,7 +67,8 @@ export default function TeacherLogin({handleChangeToStudent}) {
                 Cookies.set('instructorID', response.data, {
                     expires: 1,
                     path: '/',
-                    sameSite: 'strict'
+                    sameSite: 'strict',
+                    strict: true
                 });
 
                 if (response.data === 'Invalid') {
@@ -148,7 +149,7 @@ export default function TeacherLogin({handleChangeToStudent}) {
 
                 <center>
                     <div>
-                        <Link className={classes.changeLogin} onClick={handleChangeToStudent}>
+                        <Link className={classes.changeLogin} onClick={props.handleChangeToStudent}>
                             <Typography variant='caption'>
                                 Student Login.
                             </Typography>

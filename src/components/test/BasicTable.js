@@ -1,13 +1,11 @@
+import { Box, Container, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core'
+import axios from 'axios'
 import React, { useEffect, useMemo, useState } from "react"
-import { useSortBy, useTable, useGlobalFilter, useFilters, useRowSelect } from "react-table"
-import MOCK_DATA from "./MOCK_DATA.json"
-import { COLUMNS } from "./columns"
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Container } from '@material-ui/core'
-import axios from 'axios';
-import Search from "../tables/Search"
-import SearchColumn from "./SearchColumn"
-import { makeStyles } from "@material-ui/core"
+import { useFilters, useGlobalFilter, useRowSelect, useTable } from "react-table"
 import { CheckBox } from "../tables/CheckBox"
+import Search from "../tables/Search"
+import { COLUMNS } from "./columns"
+import SearchColumn from "./SearchColumn"
 
 const useStyle = makeStyles({
     container: {

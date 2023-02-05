@@ -1,10 +1,10 @@
 
 import React, { useEffect, useState } from 'react'
 import { Card, CardActionArea, CardContent, CardHeader, Container, Grid, Typography } from '@material-ui/core'
-import StudentTable from '../../components/tables/StudentTable'
-import TeacherTable from '../../components/tables/TeacherTable'
-import ClassroomTable from '../../components/tables/ClassroomTable'
-import AdminTable from '../../components/tables/AdminTable'
+import StudentTable from '../../components/student/StudentTable'
+import TeacherTable from '../../components/teacher/TeacherTable'
+import ClassroomTable from '../../components/classroom/ClassroomTable'
+import AdminTable from '../../components/admin/AdminTable'
 import axios from 'axios'
 
 import Cookies from 'js-cookie'

@@ -1,10 +1,9 @@
-import { React, useState } from 'react'
-import { Container, Grid, Paper, TextField, makeStyles, Button, IconButton, Tooltip, MenuItem, Box, List, ListItem, ListItemText, ListItemIcon, Divider } from '@material-ui/core'
-import StudentPosts from '../components/StudentPosts'
-import { AttachFileRounded, Close, DescriptionRounded, ImageAspectRatioRounded, ImageRounded, InsertDriveFileRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Box, Button, Container, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Paper, TextField, Tooltip } from '@material-ui/core'
+import { AttachFileRounded, Close, DescriptionRounded, ImageRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
 import axios from 'axios'
-import { useEffect } from 'react'
+import { React, useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import StudentPosts from '../components/student/StudentPosts'
 
 import Cookies from 'js-cookie'
 

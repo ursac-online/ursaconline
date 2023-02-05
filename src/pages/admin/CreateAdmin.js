@@ -1,16 +1,13 @@
 
-import { Button, FormHelperText, MenuItem, TextField } from '@material-ui/core'
-import axios from 'axios'
+import { FormHelperText, MenuItem, TextField } from '@material-ui/core'
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import StudentRegister from '../../components/StudentRegister'
-import TeacherRegister from '../../components/TeacherRegister'
-import AdminRegister from '../../components/AdminRegister'
+import AdminRegister from '../../components/admin/AdminRegister'
+import StudentRegister from '../../components/student/StudentRegister'
+import TeacherRegister from '../../components/teacher/TeacherRegister'
 
 
 
 export default function CreateAdmin() {
-    const history = useNavigate();
    
       
   const [position, setPosition] = useState('Student')

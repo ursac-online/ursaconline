@@ -67,7 +67,6 @@ function HandlingActivity() {
   const classes = useStyle();
   const { id } = useParams();
 
-  const [Id, setId] = useState(null);
   const [btnDisable, setBtnDisable] = useState(false);
   const [fileCollection, setFileCollection] = useState([]);
   const [submittedActivities, setSubmittedActivities] = useState([]);
@@ -87,6 +86,7 @@ function HandlingActivity() {
       .catch((err) => console.log(err));
   };
   const findFiles = (studentID) => {
+    // setGrade({})
     setFileCollection([]);
     const sendData = {
       updateID: id,
@@ -98,7 +98,6 @@ function HandlingActivity() {
         JSON.stringify(sendData)
       )
       .then((res) => {
-        setId(res.data[0].studentID);
         if (res.data[0].returned === 0) {
           setBtnDisable(true);
         } else {
@@ -119,34 +118,76 @@ function HandlingActivity() {
       .catch((err) => console.log(err));
   };
 
-  const [data, setData] = useState(null);
-  const handleScoreChange = (e) => {
-    const keys = e.target.name;
-    const value = e.target.value;
+  const [grade, setGrade] = useState({});
+  const [studentData, setStudentData] = useState({
+    studentID: 0,                                                                 
+    score: 0,
+    activityID: 0
+  });
+  const handleScoreChange = (e, points) => {
+    const key = e.target.name;
+    const newValue = e.target.value;
+    if (parseInt(newValue) > parseInt(points)) {
+      setGrade((grade) => ({ ...grade, [key]: points }));
+      setStudentData((studentData) => ({
+        ...studentData,
+        score: points,
+        studentID: key,
+        activityID: id
+      }));
+    } else if (parseInt(newValue) < 0) {
+      setGrade((grade) => ({ ...grade, [key]: 0 }));
+      setStudentData((studentData) => ({
+        ...studentData,
+        score: 0,
+        studentID: key,
+        activityID: id
+      }));
+    } else {
+      setGrade((grade) => ({ ...grade, [key]: newValue }));
+      setStudentData((studentData) => ({
+        ...studentData,
+        score: newValue,
+        studentID: key,
+        activityID: id
+      }));
+    }
+    
 
-    setData({ [keys]: value, studentID: Id });
+    console.log(studentData);
   };
+
+  const handleIndividualGrading = () => {
+    
+  };
+
+  // const handleEditGrading = () => {
+  //   setBtnNotGraded(true);
+  // };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    console.log(JSON.stringify(studentData));
 
-    if (data == null) {
+    if (studentData.score === "") {
       console.log("no score");
     } else {
       axios
         .post(
           "https://ursacapi.000webhostapp.com/api/updateReturn.php",
-          JSON.stringify(data)
+          JSON.stringify(studentData)
         )
         .then((res) => {
           console.log(res.data);
+    findFiles(studentData.studentID);
+
         });
     }
   };
 
   useEffect(() => {
     getActivitiesSubmitted();
-  }, []);
+  }, [handleFormSubmit]);
 
   return (
     <Box className={classes.root}>
@@ -171,11 +212,34 @@ function HandlingActivity() {
               <Grid className={classes.grids1} item xs={12} sm={3}>
                 <Container>
                   <Box>
-                    <Typography variant="h5">Students</Typography>
-                    <Typography variant="caption">
-                      Point Value:{" "}
-                      {isLoaded ? submittedActivities[0].points : null}
-                    </Typography>
+                    <Grid container>
+                      <Grid item xs={12} m={6} lg={6}>
+                        <Typography variant="h5">Students</Typography>
+                        <Typography variant="caption">
+                          Point Value:{" "}
+                          {isLoaded ? submittedActivities[0].points : null}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} m={6} lg={6}>
+                        <Box
+                          mt={1}
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Button
+                            type="submit"
+                            color="secondary"
+                            size="small"
+                            variant="contained"
+                          >
+                            Return
+                          </Button>
+                        </Box>
+                      </Grid>
+                    </Grid>
                     <List>
                       {submittedActivities.map((studentNames) => (
                         <ListItem key={studentNames.id}>
@@ -186,24 +250,29 @@ function HandlingActivity() {
                               </ListItemText>
                             </Grid>
                             <Grid item md={12} lg={6}>
-                              {studentNames.points == 0 ? (
+                              {studentNames.points === 0 ? (
                                 <Box>Ungraded</Box>
                               ) : (
                                 <Box>
-                                  <input
-                                    type="text"
+                                  {/* <Input
+                                    type="number"
+                                    disabled
                                     name="studentID"
-                                    style={{ display: "none" }}
+                                    // style={{ display: "none" }}
                                     onChange={handleScoreChange}
-                                    value={studentNames.studentID}
-                                  />
+                                    value={grade.studentID}
+                                  /> */}
                                   <Input
                                     className={classes.input}
-                                    name="grades"
-                                    placeholder="Add grade"
+                                    name={studentNames.studentID}
                                     type="number"
+                                    placeholder="Add grade"
+                                    value={grade[studentNames.studentID] || ""}
                                     fullWidth
-                                    onChange={handleScoreChange}
+                                    onChange={(e) =>
+                                      handleScoreChange(e, studentNames.points)
+                                    }
+                                    // onBlur={() => console.log(grade)}
                                     onFocus={() =>
                                       findFiles(studentNames.studentID)
                                     }
@@ -215,7 +284,7 @@ function HandlingActivity() {
                                     }}
                                     endAdornment={
                                       <InputAdornment position="start">
-                                        <Typography>
+                                        <Typography style={{ color: "#777" }}>
                                           /{studentNames.points}
                                         </Typography>
                                       </InputAdornment>

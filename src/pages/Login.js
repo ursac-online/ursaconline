@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react'
-import { Box, Button, Container, TextField, Link, Typography, Fade, MenuItem, FormHelperText, Icon } from '@material-ui/core';
+import { Box, Container, Fade, Icon } from '@material-ui/core';
 import logo2 from '../images/logo2.png'
 import logo1 from '../images/logo1.png'
 import logo from '../images/logo1.png'
@@ -141,15 +141,15 @@ export default function Login() {
     return (
         <Box className={classes.root}>
             {isPending &&
-                <Fade in={true} >
+                <Fade in={isPending}>
                     <div className={classes.loading}>
-                        <img src={urslogo} className={classes.loadingImage} />
+                        <img src={urslogo} className={classes.loadingImage}  />
                     </div>
                 </Fade>
             }
 
             {isLoading &&
-                <Fade in={true} style={{ transitionDelay: '700ms' }}>
+                <Fade in={true} timeout={1500}>
                     <Container className={classes.formContainer}>
 
                         <div className={classes.logoContainer}>
