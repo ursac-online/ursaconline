@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import { Description, Title } from "@material-ui/icons";
+import { Description, Done, Title } from "@material-ui/icons";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -120,9 +120,9 @@ function HandlingActivity() {
 
   const [grade, setGrade] = useState({});
   const [studentData, setStudentData] = useState({
-    studentID: 0,                                                                 
+    studentID: 0,
     score: 0,
-    activityID: 0
+    activityID: 0,
   });
   const handleScoreChange = (e, points) => {
     const key = e.target.name;
@@ -133,7 +133,7 @@ function HandlingActivity() {
         ...studentData,
         score: points,
         studentID: key,
-        activityID: id
+        activityID: id,
       }));
     } else if (parseInt(newValue) < 0) {
       setGrade((grade) => ({ ...grade, [key]: 0 }));
@@ -141,7 +141,7 @@ function HandlingActivity() {
         ...studentData,
         score: 0,
         studentID: key,
-        activityID: id
+        activityID: id,
       }));
     } else {
       setGrade((grade) => ({ ...grade, [key]: newValue }));
@@ -149,21 +149,12 @@ function HandlingActivity() {
         ...studentData,
         score: newValue,
         studentID: key,
-        activityID: id
+        activityID: id,
       }));
     }
-    
 
     console.log(studentData);
   };
-
-  const handleIndividualGrading = () => {
-    
-  };
-
-  // const handleEditGrading = () => {
-  //   setBtnNotGraded(true);
-  // };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -179,15 +170,14 @@ function HandlingActivity() {
         )
         .then((res) => {
           console.log(res.data);
-    findFiles(studentData.studentID);
-
+          findFiles(studentData.studentID);
         });
     }
   };
 
   useEffect(() => {
     getActivitiesSubmitted();
-  }, [handleFormSubmit]);
+  }, []);
 
   return (
     <Box className={classes.root}>
@@ -254,42 +244,45 @@ function HandlingActivity() {
                                 <Box>Ungraded</Box>
                               ) : (
                                 <Box>
-                                  {/* <Input
-                                    type="number"
-                                    disabled
-                                    name="studentID"
-                                    // style={{ display: "none" }}
-                                    onChange={handleScoreChange}
-                                    value={grade.studentID}
-                                  /> */}
-                                  <Input
-                                    className={classes.input}
-                                    name={studentNames.studentID}
-                                    type="number"
-                                    placeholder="Add grade"
-                                    value={grade[studentNames.studentID] || ""}
-                                    fullWidth
-                                    onChange={(e) =>
-                                      handleScoreChange(e, studentNames.points)
-                                    }
-                                    // onBlur={() => console.log(grade)}
-                                    onFocus={() =>
-                                      findFiles(studentNames.studentID)
-                                    }
-                                    inputProps={{
-                                      style: { textAlign: "right" },
-                                      min: 0,
-                                      max: studentNames.points,
-                                      step: "1",
-                                    }}
-                                    endAdornment={
-                                      <InputAdornment position="start">
-                                        <Typography style={{ color: "#777" }}>
-                                          /{studentNames.points}
-                                        </Typography>
-                                      </InputAdornment>
-                                    }
-                                  />
+                                  {/* TODO */}
+                                  {studentNames.returned == 1 ? (
+                                    <Box mt={2} style={{display: "flex", justifyContent: "center", alignContent: "center"}}><Done /></Box>
+                                    
+                                  ) : (
+                                    <Input
+                                      className={classes.input}
+                                      name={studentNames.studentID}
+                                      type="number"
+                                      placeholder="Add grade"
+                                      value={
+                                        grade[studentNames.studentID] || ""
+                                      }
+                                      fullWidth
+                                      onChange={(e) =>
+                                        handleScoreChange(
+                                          e,
+                                          studentNames.points
+                                        )
+                                      }
+                                      // onBlur={() => console.log(grade)}
+                                      onFocus={() =>
+                                        findFiles(studentNames.studentID)
+                                      }
+                                      inputProps={{
+                                        style: { textAlign: "right" },
+                                        min: 0,
+                                        max: studentNames.points,
+                                        step: "1",
+                                      }}
+                                      endAdornment={
+                                        <InputAdornment position="start">
+                                          <Typography style={{ color: "#777" }}>
+                                            /{studentNames.points}
+                                          </Typography>
+                                        </InputAdornment>
+                                      }
+                                    />
+                                  )}
                                 </Box>
                               )}
                             </Grid>
