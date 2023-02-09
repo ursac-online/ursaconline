@@ -47,6 +47,7 @@ import { useState } from "react";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import axios from "axios";
+import PDFPreview from "./components/test/PDFPreview";
 
 const theme = createTheme({
   typography: {
@@ -347,21 +348,14 @@ function App() {
           <Route path="/basicTable" element={<BasicTable />} />
 
           {/* NEW LAYOUT */}
-          {/* <Route
-            path="/studentsDashboard"
+          <Route
+            path="/pdf"
             element={
-              <Layout
-                linksFromApp={userIconLinks}
-                userNameFromApp={userName}
-                roleFromApp={userRole}
-                logout={logout}
-              >
-                <StudentDashboard />
-              </Layout>
+             <PDFPreview />
             }
           />
 
-          <Route
+          {/* <Route
             path="/studentsFeed/:id"
             element={
               <Layout
