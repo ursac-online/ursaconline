@@ -2,6 +2,9 @@ import {
   Box,
   Button,
   Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
   Input,
   InputAdornment,
@@ -18,6 +21,11 @@ import { Description, Done, Title } from "@material-ui/icons";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+import { SpecialZoomLevel, Viewer } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 const width = 70;
 const smwidth = 20;
@@ -85,7 +93,12 @@ function HandlingActivity() {
 
       .catch((err) => console.log(err));
   };
-  const findFiles = (studentID) => {
+  const findFiles = async (studentID) => {
+
+    const response = await fetch('https://ursacapi.000webhostapp.com/api/files/958945-refelctionn.pdf');
+  const pdfBlob = await response.blob();
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+  console.log(pdfUrl);
     // setGrade({})
     setFileCollection([]);
     const sendData = {
@@ -104,6 +117,7 @@ function HandlingActivity() {
           setBtnDisable(false);
         }
         const file = JSON.parse(res.data[0].filesSubmitted);
+        console.log(file);
         for (const key in file) {
           setFileCollection((fileCollection) => [
             ...fileCollection,
@@ -159,6 +173,7 @@ function HandlingActivity() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     console.log(JSON.stringify(studentData));
+    
 
     if (studentData.score === "") {
       console.log("no score");
@@ -174,6 +189,9 @@ function HandlingActivity() {
         });
     }
   };
+
+  const [pdfFile, setPdfFile] = useState(null);
+  const [viewPDF, setViewPDF] = useState(null);
 
   useEffect(() => {
     getActivitiesSubmitted();
@@ -246,8 +264,16 @@ function HandlingActivity() {
                                 <Box>
                                   {/* TODO */}
                                   {studentNames.returned == 1 ? (
-                                    <Box mt={2} style={{display: "flex", justifyContent: "center", alignContent: "center"}}><Done /></Box>
-                                    
+                                    <Box
+                                      mt={2}
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignContent: "center",
+                                      }}
+                                    >
+                                      <Done />
+                                    </Box>
                                   ) : (
                                     <Input
                                       className={classes.input}
@@ -309,6 +335,10 @@ function HandlingActivity() {
                                 <Description />
                               </ListItemIcon>
                               <ListItemText>{eachFile.fileName}</ListItemText>
+                              <Dialog open={false}>
+                                <DialogTitle>Preview</DialogTitle>
+                                <DialogContent>Content here</DialogContent>
+                              </Dialog>
                             </ListItem>
                           ))}
                         </Box>

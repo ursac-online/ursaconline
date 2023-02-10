@@ -263,18 +263,8 @@ export default function StudentPosts({ activity, streamFeed }) {
               <List>
                 {fileCollection.map((keys) => (
                   
-                  <a
-                    href={
-                      "https://ursacapi.000webhostapp.com/api/downloadFile.php?file=" +
-                      keys.keyLink
-                    }
-                    style={{
-                      textDecoration: "none",
-                      color: "#333",
-                    }}
-                    key={keys.keyLink}
-                  >
-                    <ListItem className={classes.list}>
+                  
+                    <ListItem className={classes.list} key={keys.keyLink} onClick={() => console.log(keys.keyLink)}>
                       <ListItemIcon>
                         <DescriptionRounded />
                       </ListItemIcon>
@@ -282,7 +272,6 @@ export default function StudentPosts({ activity, streamFeed }) {
                         <Typography noWrap>{keys.fileName}</Typography>
                       </ListItemText>
                     </ListItem>
-                  </a>
                 ))}
               </List>
             </CardContent>

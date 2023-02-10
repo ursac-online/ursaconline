@@ -235,7 +235,7 @@ export default function TeacherFeed() {
     formdata.append("submit", "submit");
 
     return await axios({
-      url: "https://ursacapi.000webhostapp.com/api/addPost.php",
+      url: "https://ursacapi.000webhostapp.com/api/addThisPost.php",
       method: "POST",
       headers: {
         "content-type": "multipart/form-data",
