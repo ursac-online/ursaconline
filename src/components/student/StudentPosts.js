@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -23,16 +24,18 @@ import {
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 
-import { Check, DescriptionRounded, MoreVert } from "@material-ui/icons";
+import { Check, DescriptionRounded, GetAppRounded, MoreVert } from "@material-ui/icons";
 import axios from "axios";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import PDFPreview from "../test/PDFPreview";
-import { SpecialZoomLevel, Viewer } from "@react-pdf-viewer/core";
+import { SpecialZoomLevel, Viewer, OpenFile } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { getFilePlugin } from '@react-pdf-viewer/get-file';
 
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+
 
 const useStyle = makeStyles((theme) => {
   return {
@@ -207,7 +210,72 @@ export default function StudentPosts({ activity, streamFeed }) {
     setOpen(false);
   };
 
-  const newPlugin = defaultLayoutPlugin();
+  const renderToolbar = (Toolbar) => (
+    <Toolbar>
+      {(slots) => {
+        const {
+          Download,
+          CurrentPageInput,
+          NumberOfPages
+        } = slots;
+
+        const getFilePluginInstance = getFilePlugin(
+          {
+            fileNameGenerator: () => {
+              return `a-copy-of-${pdfName}`;
+            },
+          }
+        );
+        
+        return (
+          <div
+            style={{
+              display: 'flex',
+
+              alignItems: 'center',
+              width: '100%',
+              justifyContent: "flex-end",
+              marginRight: "5%"
+              
+            }}
+          >
+            <div style={{ padding: '0px 2px', width: '4rem' }}>
+              <CurrentPageInput />
+            </div>
+            <div style={{ padding: '0px 2px' }}>
+              / <NumberOfPages />
+            </div>
+            <div style={{ marginLeft: "25px"
+            }}>
+              <Download downloadPlugin={getFilePluginInstance}>
+                {(props) => (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    endIcon={<GetAppRounded />}
+                    onClick={props.onClick}
+                  >
+                    Download
+                  </Button>
+                )}
+              </Download>
+            </div>
+          </div>
+        );
+      }}
+
+    </Toolbar>);
+
+  const newPlugin = defaultLayoutPlugin({
+    renderToolbar,
+    sidebarTabs: (defaultTabs) => []
+  });
+  const renderLoader = () => {
+    return <div>Loading...</div>;
+  };
+  const [pdfName, setPdfName] = useState("file");
+
+  // const { DownloadButton } = getFilePluginInstance;
 
   const dialogStyle = {
     width: '100%',
@@ -247,11 +315,11 @@ export default function StudentPosts({ activity, streamFeed }) {
   // fileCollection?.map(file => {
   //   console.log(file.file_name);
   // })
-  const handleOpenDialog = (fileData) => {
-    setOpen(true)
-
+  const handleOpenDialog = (fileData, fileName) => {
+    setPdfName(fileName)
     const pdfUint8Array = new Uint8Array(atob(fileData).split('').map(char => char.charCodeAt(0)));
     setViewPDF(pdfUint8Array)
+    setOpen(true)
   }
 
 
@@ -306,44 +374,48 @@ export default function StudentPosts({ activity, streamFeed }) {
           />
 
           <Dialog PaperProps={{ style: dialogStyle }} maxWidth="md" open={open} onClose={handleCloseDialog} fullWidth>
-            <DialogTitle>Preview</DialogTitle>
-            <DialogContent>
-              <Box className="pdfPreview">
-                <Box
-                  className="pdfContainer"
+            <Box className="pdfPreview">
+              <Box
+                className="pdfContainer"
 
-                >
-                  {viewPDF && (
-                    <div
-                      style={{
-                        border: "1px solid rgba(0, 0, 0, 0.3)",
-                      }}
-                    >
-                      <Viewer
-                        fileUrl={viewPDF ? viewPDF : ""}
-                        defaultScale={SpecialZoomLevel.PageFit}
-                        plugins={[newPlugin]}
-                      />
-                    </div>
-                  )}
-                  {!viewPDF && (
-                    <div
-                      style={{
-                        alignItems: "center",
-                        border: "2px dashed rgba(0, 0, 0, .3)",
-                        display: "flex",
-                        fontSize: "2rem",
-                        height: "100%",
-                        justifyContent: "center",
-                        width: "100%",
-                      }}
-                    >
-                      NO PDF
-                    </div>
-                  )}
-                </Box>
+              >
+
+                {/* <div
+                    style={{
+                      border: "1px solid rgba(0, 0, 0, 0.3)",
+                      borderRadius: "7px"
+                    }}
+                  >
+                    <DownloadButton />
+                  </div> */}
+
+                {viewPDF && (
+                  <div style={{ height: "700px" }}>
+                    <Viewer
+                      fileUrl={viewPDF ? viewPDF : ""}
+                      defaultScale={SpecialZoomLevel.FitToWidth}
+                      plugins={[newPlugin]}
+                      renderLoader={renderLoader}
+                    />
+                  </div>
+                )}
+                {!viewPDF && (
+                  <div
+                    style={{
+                      alignItems: "center",
+                      border: "2px dashed rgba(0, 0, 0, .3)",
+                      display: "flex",
+                      fontSize: "2rem",
+                      height: "100%",
+                      justifyContent: "center",
+                      width: "100%",
+                    }}
+                  >
+                    NO PDF
+                  </div>
+                )}
               </Box>
-            </DialogContent>
+            </Box>
           </Dialog>
 
           {activity.isAnActivity == 0 ? (
@@ -354,7 +426,7 @@ export default function StudentPosts({ activity, streamFeed }) {
 
                 <List>
                   {fileCollection.map(file => (
-                    <ListItem key={file.file_id} className={classes.list} onClick={() => handleOpenDialog(file.file_data)}>
+                    <ListItem key={file.file_id} className={classes.list} onClick={() => handleOpenDialog(file.file_data, file.file_name)}>
                       <ListItemIcon>
                         <DescriptionRounded />
                       </ListItemIcon>
