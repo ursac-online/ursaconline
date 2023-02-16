@@ -219,37 +219,40 @@ export default function StudentPosts({ activity, streamFeed }) {
           NumberOfPages
         } = slots;
 
-        const getFilePluginInstance = getFilePlugin(
-          {
-            fileNameGenerator: () => {
-              return `a-copy-of-${pdfName}`;
-            },
-          }
-        );
-        
+        // const getFilePluginInstance = DownloadOlugin(
+        //   {
+        //     fileNameGenerator: () => {
+        //       return `a-copy-of-${pdfName}`;
+        //     },
+        //   }
+        // );
+
         return (
           <div
+            className="rpv-default-layout__toolbar"
             style={{
               display: 'flex',
-
+              boxShadow: "0px 0px 0px rgba(0,0,0,0.5)",
+              padding: "5px 0px",
               alignItems: 'center',
               width: '100%',
-              justifyContent: "flex-end",
-              marginRight: "5%"
-              
+              justifyContent: "flex-end"
+
             }}
           >
-            <div style={{ padding: '0px 2px', width: '4rem' }}>
+            <div style={{ padding: '0px 2px', width: '3rem', marginRight: "5px" }}>
               <CurrentPageInput />
             </div>
             <div style={{ padding: '0px 2px' }}>
-              / <NumberOfPages />
+              of <NumberOfPages />
             </div>
-            <div style={{ marginLeft: "25px"
+            <div style={{
+              marginLeft: "25px"
             }}>
-              <Download downloadPlugin={getFilePluginInstance}>
+              <Download>
                 {(props) => (
                   <Button
+                  style={{marginRight: "25px"}}
                     variant="contained"
                     color="secondary"
                     endIcon={<GetAppRounded />}
@@ -374,13 +377,14 @@ export default function StudentPosts({ activity, streamFeed }) {
           />
 
           <Dialog PaperProps={{ style: dialogStyle }} maxWidth="md" open={open} onClose={handleCloseDialog} fullWidth>
-            <Box className="pdfPreview">
-              <Box
-                className="pdfContainer"
+            <DialogContent>
+              <Box className="pdfPreview">
+                <Box
+                  className="pdfContainer"
 
-              >
+                >
 
-                {/* <div
+                  {/* <div
                     style={{
                       border: "1px solid rgba(0, 0, 0, 0.3)",
                       borderRadius: "7px"
@@ -389,33 +393,34 @@ export default function StudentPosts({ activity, streamFeed }) {
                     <DownloadButton />
                   </div> */}
 
-                {viewPDF && (
-                  <div style={{ height: "700px" }}>
-                    <Viewer
-                      fileUrl={viewPDF ? viewPDF : ""}
-                      defaultScale={SpecialZoomLevel.FitToWidth}
-                      plugins={[newPlugin]}
-                      renderLoader={renderLoader}
-                    />
-                  </div>
-                )}
-                {!viewPDF && (
-                  <div
-                    style={{
-                      alignItems: "center",
-                      border: "2px dashed rgba(0, 0, 0, .3)",
-                      display: "flex",
-                      fontSize: "2rem",
-                      height: "100%",
-                      justifyContent: "center",
-                      width: "100%",
-                    }}
-                  >
-                    NO PDF
-                  </div>
-                )}
+                  {viewPDF && (
+                    <div style={{ height: "85vh", width: "100%" }}>
+                      <Viewer
+                        fileUrl={viewPDF ? viewPDF : ""}
+                        defaultScale={SpecialZoomLevel.FitToWidth}
+                        plugins={[newPlugin]}
+                        renderLoader={renderLoader}
+                      />
+                    </div>
+                  )}
+                  {!viewPDF && (
+                    <div
+                      style={{
+                        alignItems: "center",
+                        border: "2px dashed rgba(0, 0, 0, .3)",
+                        display: "flex",
+                        fontSize: "2rem",
+                        height: "100%",
+                        justifyContent: "center",
+                        width: "100%",
+                      }}
+                    >
+                      NO PDF
+                    </div>
+                  )}
+                </Box>
               </Box>
-            </Box>
+            </DialogContent>
           </Dialog>
 
           {activity.isAnActivity == 0 ? (
