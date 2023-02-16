@@ -89,7 +89,6 @@ export default function TeacherFeed() {
           setActivities(response.data.reverse());
           setNoPost(false);
         }
-        // console.log(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -103,6 +102,7 @@ export default function TeacherFeed() {
   //     })
   //     .catch(err => console.log(err))
   // }
+
 
   const showInstructorsInfo = () => {
     axios
@@ -119,7 +119,7 @@ export default function TeacherFeed() {
           // Cookies.set('userFirstName', response.data[0].firstName)
           setImg(
             "https://ursacapi.000webhostapp.com/api/" +
-              response.data[0].profilePicture
+            response.data[0].profilePicture
           );
 
           // setProfilePic('https://ursacapi.000webhostapp.com/api/' + response.data[0].profilePicture)
@@ -152,17 +152,17 @@ export default function TeacherFeed() {
 
     let res = await uploadFile(filePreview, postData);
     console.log(res.data);
-    setPostData({
-      title: "",
-      body: "",
-      name: Cookies.get("userName"),
-    });
-    setPostAsActivity({
-      points: "",
-      dueDate: today,
-    });
-    setFilePreview([]);
-    streamFeed();
+    // setPostData({
+    //   title: "",
+    //   body: "",
+    //   name: Cookies.get("userName"),
+    // });
+    // setPostAsActivity({
+    //   points: "",
+    //   dueDate: today,
+    // });
+    // setFilePreview([]);
+    // streamFeed();
   };
 
   const [filePreview, setFilePreview] = useState([]);
@@ -188,7 +188,7 @@ export default function TeacherFeed() {
       setFileOnChange(true);
     }
   };
-  
+
 
   const [attachActivity, setAttachActivity] = useState(false);
   const [makeActivity, setMakeActivity] = useState(false);
@@ -334,7 +334,7 @@ export default function TeacherFeed() {
                               {file.type === "application/pdf" ? (
                                 <PictureAsPdfRounded />
                               ) : file.type ===
-                                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
                                 "application/vnd.openxmlformats-officedocument.presentationml.presentation" ? (
                                 <DescriptionRounded />
                               ) : file.type === "video/x-matroska" ? (

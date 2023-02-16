@@ -1,10 +1,15 @@
 import {
   Avatar,
-  Box, Card,
+  Box,
+  Card,
   CardActions,
   CardContent,
   CardHeader,
-  Divider, Icon,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Icon,
   IconButton,
   List,
   ListItem,
@@ -12,17 +17,22 @@ import {
   ListItemText,
   makeStyles,
   Menu,
-  MenuItem, Typography
+  MenuItem,
+  Typography,
 } from "@material-ui/core";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 
-import {
-  Check, DescriptionRounded, MoreVert
-} from "@material-ui/icons";
+import { Check, DescriptionRounded, MoreVert } from "@material-ui/icons";
 import axios from "axios";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import PDFPreview from "../test/PDFPreview";
+import { SpecialZoomLevel, Viewer } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 const useStyle = makeStyles((theme) => {
   return {
@@ -130,21 +140,10 @@ const useStyle = makeStyles((theme) => {
 
 export default function StudentPosts({ activity, streamFeed }) {
   const classes = useStyle();
-  const file = JSON.parse(activity.files);
   const id = activity.id;
   const [focused, setFocused] = useState("");
-  const [fileCollection, setFileCollection] = useState([]);
-  const storeFiles = () => {
-    for (const key in file) {
-      setFileCollection((fileCollection) => [
-        ...fileCollection,
-        {
-          fileName: file[key],
-          keyLink: key.slice(6),
-        },
-      ]);
-    }
-  };
+
+
 
   const StudentCookie = Cookies.get("idLoggedIn");
   const InstructorCookie = Cookies.get("instructorID");
@@ -154,7 +153,7 @@ export default function StudentPosts({ activity, streamFeed }) {
   const checkIfSubmitted = () => {
     const sendData = {
       updateID: id,
-      studentID: StudentCookie
+      studentID: StudentCookie,
     };
     axios
       .post(
@@ -187,8 +186,7 @@ export default function StudentPosts({ activity, streamFeed }) {
       .catch((err) => console.log(err));
   };
 
-
-  const [isStudent, setIsStudent] = useState('block');
+  const [isStudent, setIsStudent] = useState("block");
   const [openMenu, setOpenMenu] = useState(false);
   const [anchor, setAnchor] = useState(null);
   const handleClickMenu = (event) => {
@@ -201,14 +199,65 @@ export default function StudentPosts({ activity, streamFeed }) {
     setAnchor(null);
     setFocused("");
   };
+  const [fileCollection, setFileCollection] = useState(null);
+
+  const [viewPDF, setViewPDF] = useState(null);
+  const [open, setOpen] = useState(false);
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
+  const newPlugin = defaultLayoutPlugin();
+
+  const dialogStyle = {
+    width: '100%',
+    height: '750px',
+  };
 
   useEffect(() => {
+    const storeFiles = async () => {
+      try {
+        const res = await axios.post(
+          "https://ursacapi.000webhostapp.com/api/getThisFiles.php",
+          JSON.stringify(activity.id)
+        );
+        const resData = res.data;
+        if (resData === "") {
+          setFileCollection(null)
+
+        } else {
+          setFileCollection(resData)
+
+          // for (const i of res.data) {
+          //   console.log(i);
+          // }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
     storeFiles();
+
     if (Cookies.get("idLoggedIn")) {
       checkIfSubmitted();
-      setIsStudent('none')
+      setIsStudent("none");
     }
   }, []);
+
+  // fileCollection?.map(file => {
+  //   console.log(file.file_name);
+  // })
+  const handleOpenDialog = (fileData) => {
+    setOpen(true)
+
+    const pdfUint8Array = new Uint8Array(atob(fileData).split('').map(char => char.charCodeAt(0)));
+    setViewPDF(pdfUint8Array)
+  }
+
+
+
+
+
 
   const date = new Date(activity.dateCreated);
   const currentDate = format(date, "MMM dd yyyy h:mm aaa");
@@ -237,6 +286,7 @@ export default function StudentPosts({ activity, streamFeed }) {
         </MenuItem>
       </Menu>
       <Box className={classes.cardContainer}>
+        {/* TODO */}
         <Card variant="outlined" className={classes.card}>
           <CardHeader
             className={classes.classheader}
@@ -246,7 +296,7 @@ export default function StudentPosts({ activity, streamFeed }) {
             action={
               <IconButton
                 aria-label="settings"
-                style={{display: isStudent}}
+                style={{ display: isStudent }}
                 className={focused}
                 onClick={handleClickMenu}
               >
@@ -255,25 +305,66 @@ export default function StudentPosts({ activity, streamFeed }) {
             }
           />
 
+          <Dialog PaperProps={{ style: dialogStyle }} maxWidth="md" open={open} onClose={handleCloseDialog} fullWidth>
+            <DialogTitle>Preview</DialogTitle>
+            <DialogContent>
+              <Box className="pdfPreview">
+                <Box
+                  className="pdfContainer"
+
+                >
+                  {viewPDF && (
+                    <div
+                      style={{
+                        border: "1px solid rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      <Viewer
+                        fileUrl={viewPDF ? viewPDF : ""}
+                        defaultScale={SpecialZoomLevel.PageFit}
+                        plugins={[newPlugin]}
+                      />
+                    </div>
+                  )}
+                  {!viewPDF && (
+                    <div
+                      style={{
+                        alignItems: "center",
+                        border: "2px dashed rgba(0, 0, 0, .3)",
+                        display: "flex",
+                        fontSize: "2rem",
+                        height: "100%",
+                        justifyContent: "center",
+                        width: "100%",
+                      }}
+                    >
+                      NO PDF
+                    </div>
+                  )}
+                </Box>
+              </Box>
+            </DialogContent>
+          </Dialog>
+
           {activity.isAnActivity == 0 ? (
             <CardContent>
               <Typography variant="h6">{activity.title}</Typography>
               <Typography variant="body2">{activity.body}</Typography>
+              {fileCollection === null ? "" :
 
-              <List>
-                {fileCollection.map((keys) => (
-                  
-                  
-                    <ListItem className={classes.list} key={keys.keyLink} onClick={() => console.log(keys.keyLink)}>
+                <List>
+                  {fileCollection.map(file => (
+                    <ListItem key={file.file_id} className={classes.list} onClick={() => handleOpenDialog(file.file_data)}>
                       <ListItemIcon>
                         <DescriptionRounded />
                       </ListItemIcon>
                       <ListItemText className={classes.listText}>
-                        <Typography noWrap>{keys.fileName}</Typography>
+                        <Typography noWrap >{file.file_name}</Typography>
                       </ListItemText>
                     </ListItem>
-                ))}
-              </List>
+
+                  ))}
+                </List>}
             </CardContent>
           ) : (
             <Box>

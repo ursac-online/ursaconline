@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -16,12 +16,24 @@ import { SpecialZoomLevel, Viewer } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import axios from "axios";
 
-function PDFPreview() {
+
+function PDFPreview(props) {
   const [file, setFile] = useState(null);
   const [viewPDF, setViewPDF] = useState(null);
   const [open, setOpen] = useState(false);
+  const [proppedFile, setProppedFile] = useState();
+  useEffect(() => {
+      const getFile = async () => {
+        const res = await axios.get("https://ursacapi.000webhostapp.com/api/getThisFiles.php")
+        const pdfUint8Array = new Uint8Array(atob(res.data).split('').map(char => char.charCodeAt(0)));
+        setProppedFile(pdfUint8Array)
+      }
+      getFile();
 
+  }, []);
+  
   const pdfFileType = "application/pdf";
   const handleChange = (e) => {
     let selectedFile = e.target.files[0];
@@ -39,6 +51,7 @@ function PDFPreview() {
           console.log(blob);
         });
         reader.readAsDataURL(selectedFile);
+        console.log(selectedFile);
         reader.onload = (e) => {
           setFile(e.target.result);
         };
@@ -52,16 +65,19 @@ function PDFPreview() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (file !== null) {
-      setViewPDF(file);
+    setViewPDF(proppedFile)
       setOpen(true);
-      console.log("coming from here true");
-    } else {
-      setViewPDF(null);
-      setOpen(false);
-      console.log("coming from here false");
-    }
+
+
+    // if (file !== null) {
+    //   setViewPDF(file);
+    //   setOpen(true);
+    //   console.log("coming from here true");
+    // } else {
+    //   setViewPDF(null);
+    //   setOpen(false);
+    //   console.log("coming from here false");
+    // }
   };
 
   const handleClose = () => {
@@ -69,6 +85,11 @@ function PDFPreview() {
   };
 
   const newPlugin = defaultLayoutPlugin();
+
+    const dialogStyle = {
+      width: '100%',
+      height: '750px',
+    };
 
   return (
     <div className="container">
@@ -90,23 +111,18 @@ function PDFPreview() {
         </FormControl>
       </form>
 
-      <Dialog open={open} onClose={handleClose} fullWidth>
+      <Dialog PaperProps={{ style: dialogStyle }} maxWidth="md" open={open} onClose={handleClose} fullWidth>
         <DialogTitle>Preview</DialogTitle>
         <DialogContent>
           <Box className="pdfPreview">
             <Box
               className="pdfContainer"
-              style={{
-                height: "750px",
-                width: "100%",
-                margin: "auto",
-              }}
+              
             >
               {viewPDF && (
                 <div
                   style={{
                     border: "1px solid rgba(0, 0, 0, 0.3)",
-                    height: "100%",
                   }}
                 >
                   <Viewer

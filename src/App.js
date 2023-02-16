@@ -351,7 +351,7 @@ function App() {
           <Route
             path="/pdf"
             element={
-             <PDFPreview />
+              <PDFPreview />
             }
           />
 
