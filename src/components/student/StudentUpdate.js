@@ -1,11 +1,30 @@
 
-import { Button, FormHelperText, TextField } from '@material-ui/core';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import { Box, Button, CircularProgress, Dialog, DialogContent, DialogContentText, FormHelperText, Icon, makeStyles, MenuItem, TextField } from '@material-ui/core'
+import { CheckCircleOutlineRounded } from '@material-ui/icons';
+import axios from 'axios'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-
+const useStyles = makeStyles(theme => {
+    return {
+        dialogContainer: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        },
+        green: {
+            color: '#55CA36'
+        },
+    }
+})
 
 export default function StudentUpdate(updateID) {
+    const classes = useStyles();
+    
+    const [isLoading, setisLoading] = useState(false);
+
+    const [loadingDialog, setLoadingDialog] = useState(false);
+
 
     
     useEffect(() => {
@@ -114,6 +133,45 @@ export default function StudentUpdate(updateID) {
 
         </form>
         </div>
+        <Dialog
+                        open={loadingDialog}
+                    >
+                        <DialogContent>
+
+                            {
+                                isLoading ?
+
+
+                                    <Box className={classes.dialogContainer}>
+                                        <Box mb={1}>
+                                            <CircularProgress color='secondary' />
+                                        </Box>
+                                        <DialogContentText>
+                                            Saving...
+                                        </DialogContentText>
+                                    </Box>
+
+                                    :
+
+                                    <Box className={classes.dialogContainer}>
+                                        <DialogContentText>
+                                            <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
+                                        </DialogContentText>
+                                        <DialogContentText>
+                                            Changes applied
+                                        </DialogContentText>
+                                    </Box>
+
+                            }
+
+
+
+
+
+                        </DialogContent>
+
+                    </Dialog>
+        
         </center>
         
     </div>

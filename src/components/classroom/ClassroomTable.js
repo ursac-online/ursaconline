@@ -1,4 +1,4 @@
-import { Box, Button, Container, Dialog, DialogContent, DialogTitle, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core';
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core';
 import { DeleteForever, EditRounded, Search } from '@material-ui/icons';
 import axios from 'axios';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -117,11 +117,8 @@ export default function ClassroomTable() {
         Header: 'Delete',
         Cell: ({ row }) => (
           <Button variant='contained' color='secondary' disableElevation onClick={() => {
-            axios.post('https://ursacapi.000webhostapp.com/api/removeClassroom.php', row.values.id)
-              .then(response => {
-                console.log(response.data);
-                showClassrooms();
-              })
+            setUpdateID(row.values.id)
+            setOpenDelete(true)
           }} >
             <DeleteForever />
           </Button>
@@ -150,6 +147,20 @@ export default function ClassroomTable() {
     setEditModal(false)
     showClassrooms();
   }
+  const deleteUser = (removeId) => {
+    axios.post('https://ursacapi.000webhostapp.com/api/removeClassroom.php', removeId)
+              .then(response => {
+                console.log(response.data);
+                showClassrooms();
+                
+              })
+      handleCloseDelete()
+  }
+
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleCloseDelete = () => {
+    setOpenDelete(false)
+  }
 
   const { globalFilter } = state
 
@@ -157,7 +168,15 @@ export default function ClassroomTable() {
     <>
       <Box className={classes.mainRoot}>
         <div>
-
+        <Dialog open={openDelete} onClose={handleCloseDelete}>
+            <DialogContent>
+                Are you sure you want to remove this data?
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => deleteUser(updateID)}>Confirm</Button>
+              <Button variant='contained' color='secondary' onClick={handleCloseDelete}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
           <Dialog
             open={editModal}
             onClose={handleClose}

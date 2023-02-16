@@ -1,4 +1,4 @@
-import { Box, Button, Container, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Paper, TextField, Tooltip } from '@material-ui/core'
+import { Box, Button, Container, FormHelperText, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Paper, TextField, Tooltip } from '@material-ui/core'
 import { AttachFileRounded, Close, DescriptionRounded, ImageRounded, MovieCreationRounded, PictureAsPdfRounded } from '@material-ui/icons'
 import axios from 'axios'
 import { React, useEffect, useState } from 'react'
@@ -67,7 +67,7 @@ export default function StudentFeed() {
   }
 
   const streamFeed = () => {
-    axios.post('https://ursacapi.000webhostapp.com/api/getPost.php', JSON.stringify(id))
+    axios.post('https://ursacapi.000webhostapp.com/api/getThisPost.php', JSON.stringify(id))
       .then((response) => {
         if (response.data == 0) {
           setNoPost(true);
@@ -110,6 +110,7 @@ export default function StudentFeed() {
 
 
 
+  const [filePreview, setFilePreview] = useState([]);
 
 
 
@@ -131,12 +132,12 @@ export default function StudentFeed() {
     e.preventDefault()
 
     let res = await uploadFile(filePreview, postData)
-    console.log(res.data);
     setPostData({
       title: '',
       body: '',
       name: Cookies.get('userName')
     });
+    setFilePreview([])
     streamFeed();
 
   }
@@ -147,7 +148,6 @@ export default function StudentFeed() {
 
 
 
-  const [filePreview, setFilePreview] = useState([]);
 
   const [fileOnChange, setFileOnChange] = useState(false);
   // const [newFile, setNewFile] = useState([]);
@@ -159,7 +159,6 @@ export default function StudentFeed() {
 
     for (let file of currentFile) {
       setFilePreview(filePreview => [...filePreview, file])
-      console.log(file);
 
     }
     // setNewFile(currentFile)
@@ -195,7 +194,7 @@ export default function StudentFeed() {
 
 
     return await axios({
-      url: 'https://ursacapi.000webhostapp.com/api/addPost.php',
+      url: 'https://ursacapi.000webhostapp.com/api/addThisPost.php',
       method: "POST",
       headers: {
         'content-type': 'multipart/form-data'
@@ -264,10 +263,11 @@ export default function StudentFeed() {
                     required
                   />
 
-                  <input onChange={handleFileChange} style={{ display: 'none' }} type="file" name='files[]' multiple id='attach-file' />
+                  <input onChange={handleFileChange} style={{ display: 'none' }} type="file" name='files[]' accept='.pdf' multiple id='attach-file' />
                   <label htmlFor="attach-file">
                     <IconButton component='span'><Tooltip title='Attach a file' placement='right-start' ><AttachFileRounded /></Tooltip></IconButton>
                   </label>
+                  <FormHelperText>PDF only</FormHelperText>
 
                   {
                     fileOnChange ?

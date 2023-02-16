@@ -166,9 +166,9 @@ export default function StudentPosts({ activity, streamFeed }) {
       .then((response) => {
         if (response.data.length > 0) {
           setSubmitted(true);
-          console.log(response.data);
+          // console.log(response.data);
         } else {
-          console.log("not submitted");
+          // console.log("not submitted");
         }
       });
   };

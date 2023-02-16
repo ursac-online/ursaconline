@@ -1,4 +1,4 @@
-import { Box, Button, Container, Dialog, DialogContent, DialogTitle, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core';
+import { Box, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core';
 import { DeleteForever, EditRounded, Search } from '@material-ui/icons';
 import axios from 'axios';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -116,11 +116,9 @@ export default function TeacherTable() {
         Header: 'Delete',
         Cell: ({ row }) => (
           <Button variant='contained' color='secondary' disableElevation onClick={() => {
-            axios.post('https://ursacapi.000webhostapp.com/api/removeInstructor.php', row.values.id)
-              .then(response => {
-                console.log(response.data);
-                showInstructors();
-              })
+            setUpdateID(row.values.id)
+            setOpenDelete(true)
+            showInstructors()
           }} >
             <DeleteForever />
           </Button>
@@ -149,7 +147,19 @@ export default function TeacherTable() {
     setEditModal(false)
     showInstructors();
   }
+  const deleteUser = (removeId) => {
+    axios.post('https://ursacapi.000webhostapp.com/api/removeInstructor.php', removeId)
+              .then(response => {
+                console.log(response.data);
+                showInstructors();
+              })
+      handleCloseDelete()
+  }
 
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleCloseDelete = () => {
+    setOpenDelete(false)
+  }
 
   const { globalFilter } = state
 
@@ -157,6 +167,15 @@ export default function TeacherTable() {
     <>
       <Box className={classes.mainRoot}>
         <div>
+          <Dialog open={openDelete} onClose={handleCloseDelete}>
+            <DialogContent>
+                Are you sure you want to remove this data?
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => deleteUser(updateID)}>Confirm</Button>
+              <Button variant='contained' color='secondary' onClick={handleCloseDelete}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
 
           <Dialog
             open={editModal}
@@ -165,7 +184,7 @@ export default function TeacherTable() {
             aria-describedby="simple-modal-description"
           >
             <DialogTitle>
-              Edit Student Data
+              Edit Instructor Data
             </DialogTitle>
             <DialogContent>
               <InstructorUpdate updateID={updateID} />

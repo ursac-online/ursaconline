@@ -211,15 +211,6 @@ export default function AdminLogin() {
                         LOGIN
                     </Button>
 
-                    <center>
-                        <div>
-                            <Typography variant='caption'>
-                                <Link href="#">
-                                    Forgot Password?
-                                </Link>
-                            </Typography>
-                        </div>
-                    </center>
 
                 </form>
             </Container>

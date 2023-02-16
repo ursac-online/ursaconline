@@ -1,5 +1,6 @@
 import {
   Box, Button, Container,
+  FormHelperText,
   Grid, IconButton, List,
   ListItem, ListItemIcon, ListItemText, makeStyles, MenuItem, Paper, Switch, TextField, Tooltip
 } from "@material-ui/core";
@@ -152,17 +153,18 @@ export default function TeacherFeed() {
 
     let res = await uploadFile(filePreview, postData);
     console.log(res.data);
-    // setPostData({
-    //   title: "",
-    //   body: "",
-    //   name: Cookies.get("userName"),
-    // });
-    // setPostAsActivity({
-    //   points: "",
-    //   dueDate: today,
-    // });
-    // setFilePreview([]);
-    // streamFeed();
+    setPostData({
+      title: "",
+      body: "",
+      name: Cookies.get("userName"),
+    });
+    setPostAsActivity({
+      points: "",
+      dueDate: today,
+    });
+    setMakeActivity(false)
+    setFilePreview([]);
+    streamFeed();
   };
 
   const [filePreview, setFilePreview] = useState([]);
@@ -309,6 +311,7 @@ export default function TeacherFeed() {
                     style={{ display: "none" }}
                     type="file"
                     name="files[]"
+                    accept=".pdf"
                     multiple
                     id="attach-file"
                   />
@@ -319,6 +322,8 @@ export default function TeacherFeed() {
                       </Tooltip>
                     </IconButton>
                   </label>
+                  <FormHelperText>PDF only</FormHelperText>
+
 
                   {/* <IconButton component='span' onClick={() => { setAttachActivity(true) }}><Tooltip title='Attach an activity' placement='right-start' ><Assignment /></Tooltip></IconButton> */}
 

@@ -17,7 +17,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import { Description, Done, Title } from "@material-ui/icons";
+import { Description, DescriptionRounded, Done, GetAppRounded, Title } from "@material-ui/icons";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -68,6 +68,20 @@ const useStyle = makeStyles((theme) => {
       paddingLeft: theme.spacing(1),
       borderRadius: "2px",
     },
+    list: {
+      border: "1px solid rgba(0,0,0,0.2)",
+      borderRadius: "5px",
+      marginTop: theme.spacing(2),
+      "&:hover": {
+        transform: "scale(1.007)",
+        backgroundColor: "rgba(0,0,0,0.1)",
+        cursor: "pointer",
+      },
+    },
+    listText: {
+      overflow: "hidden",
+      minWidth: theme.spacing(1),
+    },
   };
 });
 
@@ -76,8 +90,8 @@ function HandlingActivity() {
   const { id } = useParams();
 
   const [btnDisable, setBtnDisable] = useState(false);
-  const [fileCollection, setFileCollection] = useState([]);
   const [submittedActivities, setSubmittedActivities] = useState([]);
+  const [fileCollection, setFileCollection] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const getActivitiesSubmitted = () => {
     axios
@@ -93,14 +107,30 @@ function HandlingActivity() {
 
       .catch((err) => console.log(err));
   };
-  const findFiles = async (studentID) => {
+  const storeFiles = async (userid) => {
+    try {
+      const res = await axios.post(
+        "https://ursacapi.000webhostapp.com/api/getThisSubmittedFiles.php",
+        JSON.stringify(userid)
+      );
+      const resData = res.data;
+      if (resData === "") {
+        setFileCollection(null)
+        console.log("empty");
 
-    const response = await fetch('https://ursacapi.000webhostapp.com/api/files/958945-refelctionn.pdf');
-  const pdfBlob = await response.blob();
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-  console.log(pdfUrl);
-    // setGrade({})
-    setFileCollection([]);
+      } else {
+        setFileCollection(resData)
+        console.log(resData);
+
+        // for (const i of res.data) {
+        //   console.log(i);
+        // }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const findFiles = async (studentID) => {
     const sendData = {
       updateID: id,
       studentID,
@@ -111,21 +141,12 @@ function HandlingActivity() {
         JSON.stringify(sendData)
       )
       .then((res) => {
+    storeFiles(res.data[0].id);
+
         if (res.data[0].returned === 0) {
           setBtnDisable(true);
         } else {
           setBtnDisable(false);
-        }
-        const file = JSON.parse(res.data[0].filesSubmitted);
-        console.log(file);
-        for (const key in file) {
-          setFileCollection((fileCollection) => [
-            ...fileCollection,
-            {
-              fileName: file[key],
-              keyLink: key.slice(15),
-            },
-          ]);
         }
       })
 
@@ -173,7 +194,7 @@ function HandlingActivity() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     console.log(JSON.stringify(studentData));
-    
+
 
     if (studentData.score === "") {
       console.log("no score");
@@ -190,10 +211,93 @@ function HandlingActivity() {
     }
   };
 
-  const [pdfFile, setPdfFile] = useState(null);
   const [viewPDF, setViewPDF] = useState(null);
+  const [open, setOpen] = useState(false);
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
+  const renderToolbar = (Toolbar) => (
+    <Toolbar>
+      {(slots) => {
+        const {
+          Download,
+          CurrentPageInput,
+          NumberOfPages
+        } = slots;
+
+        // const getFilePluginInstance = DownloadOlugin(
+        //   {
+        //     fileNameGenerator: () => {
+        //       return `a-copy-of-${pdfName}`;
+        //     },
+        //   }
+        // );
+
+        return (
+          <div
+            className="rpv-default-layout__toolbar"
+            style={{
+              display: 'flex',
+              boxShadow: "0px 0px 0px rgba(0,0,0,0.5)",
+              padding: "5px 0px",
+              alignItems: 'center',
+              width: '100%',
+              justifyContent: "flex-end"
+
+            }}
+          >
+            <div style={{ padding: '0px 2px', width: '3rem', marginRight: "5px" }}>
+              <CurrentPageInput />
+            </div>
+            <div style={{ padding: '0px 2px' }}>
+              of <NumberOfPages />
+            </div>
+            <div style={{
+              marginLeft: "25px"
+            }}>
+              <Download>
+                {(props) => (
+                  <Button
+                    style={{ marginRight: "25px" }}
+                    variant="contained"
+                    color="secondary"
+                    endIcon={<GetAppRounded />}
+                    onClick={props.onClick}
+                  >
+                    Download
+                  </Button>
+                )}
+              </Download>
+            </div>
+          </div>
+        );
+      }}
+
+    </Toolbar>);
+
+  const newPlugin = defaultLayoutPlugin({
+    renderToolbar,
+    sidebarTabs: (defaultTabs) => []
+  });
+  const renderLoader = () => {
+    return <div>Loading...</div>;
+  };
+
+  const dialogStyle = {
+    width: '100%',
+    height: '750px',
+  };
+
+  const handleOpenDialog = (fileData, fileName) => {
+    // setPdfName(fileName)
+    const pdfUint8Array = new Uint8Array(atob(fileData).split('').map(char => char.charCodeAt(0)));
+    setViewPDF(pdfUint8Array)
+    setOpen(true)
+  }
 
   useEffect(() => {
+    
     getActivitiesSubmitted();
   }, []);
 
@@ -321,30 +425,70 @@ function HandlingActivity() {
               </Grid>
               <Grid className={classes.grids2} item xs={12} sm={9}>
                 <Container>
+                  <Dialog PaperProps={{ style: dialogStyle }} maxWidth="md" open={open} onClose={handleCloseDialog} fullWidth>
+                    <DialogContent>
+                      <Box className="pdfPreview">
+                        <Box
+                          className="pdfContainer"
+
+                        >
+
+                          {/* <div
+                    style={{
+                      border: "1px solid rgba(0, 0, 0, 0.3)",
+                      borderRadius: "7px"
+                    }}
+                  >
+                    <DownloadButton />
+                  </div> */}
+
+                          {viewPDF && (
+                            <div style={{ height: "85vh", width: "100%" }}>
+                              <Viewer
+                                fileUrl={viewPDF ? viewPDF : ""}
+                                defaultScale={SpecialZoomLevel.FitToWidth}
+                                plugins={[newPlugin]}
+                                renderLoader={renderLoader}
+                              />
+                            </div>
+                          )}
+                          {!viewPDF && (
+                            <div
+                              style={{
+                                alignItems: "center",
+                                border: "2px dashed rgba(0, 0, 0, .3)",
+                                display: "flex",
+                                fontSize: "2rem",
+                                height: "100%",
+                                justifyContent: "center",
+                                width: "100%",
+                              }}
+                            >
+                              NO PDF
+                            </div>
+                          )}
+                        </Box>
+                      </Box>
+                    </DialogContent>
+                  </Dialog>
                   <Box>
                     File Submitted
-                    <List>
-                      {fileCollection.length > 0 ? (
-                        <Box>
-                          {fileCollection.map((eachFile) => (
-                            <ListItem
-                              className={classes.listFile}
-                              key={eachFile.keyLink}
-                            >
-                              <ListItemIcon>
-                                <Description />
-                              </ListItemIcon>
-                              <ListItemText>{eachFile.fileName}</ListItemText>
-                              <Dialog open={false}>
-                                <DialogTitle>Preview</DialogTitle>
-                                <DialogContent>Content here</DialogContent>
-                              </Dialog>
-                            </ListItem>
-                          ))}
-                        </Box>
-                      ) : null}
-                    </List>
-                    {fileCollection.length > 0 ? (
+                    {fileCollection === null ? "" :
+                      <List>
+                        {fileCollection.map(file => (
+                          <ListItem key={file.file_id} className={classes.list}
+                            onClick={() => handleOpenDialog(file.file_data, file.file_name)} >
+                            <ListItemIcon>
+                              <DescriptionRounded />
+                            </ListItemIcon>
+                            <ListItemText className={classes.listText}>
+                              <Typography noWrap >{file.file_name}</Typography>
+                            </ListItemText>
+                          </ListItem>
+
+                        ))}
+                      </List>}
+                    {fileCollection? (
                       <Box>
                         {btnDisable ? (
                           <Button

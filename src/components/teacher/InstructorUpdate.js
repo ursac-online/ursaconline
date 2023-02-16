@@ -1,13 +1,34 @@
 
-import { Button, FormHelperText, MenuItem, TextField } from '@material-ui/core'
+import { Box, Button, CircularProgress, Dialog, DialogContent, DialogContentText, FormHelperText, Icon, makeStyles, MenuItem, TextField } from '@material-ui/core'
+import { CheckCircleOutlineRounded } from '@material-ui/icons';
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 
+const useStyles = makeStyles(theme => {
+    return {
+        dialogContainer: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        },
+        green: {
+            color: '#55CA36'
+        },
+    }
+})
+
+
 
 export default function InstructorUpdate(updateID) {
     const history = useNavigate();
+
+    const classes = useStyles();
+    
+    const [isLoading, setisLoading] = useState(false);
+
+    const [loadingDialog, setLoadingDialog] = useState(false);
 
     
     useEffect(() => {
@@ -49,6 +70,8 @@ export default function InstructorUpdate(updateID) {
 
 
     const handleSubmit = (e) => {
+        setLoadingDialog(true)
+        setisLoading(true);
         e.preventDefault();
         const sendData = {
             firstName:data.firstName,
@@ -61,9 +84,11 @@ export default function InstructorUpdate(updateID) {
             id: data.id
         }
         
-        axios.post('http://localhost:80/api/updateInstructor.php', JSON.stringify(sendData))
+        axios.post('https://ursacapi.000webhostapp.com/api/updateInstructor.php', JSON.stringify(sendData))
         .then((result) => {
             console.log(result.data)
+            setLoadingDialog(false)
+            setisLoading(false);
         })
         .catch(err => console.log(err))
     };
@@ -116,6 +141,48 @@ export default function InstructorUpdate(updateID) {
 
         </form>
         </div>
+
+
+
+
+        <Dialog
+                        open={loadingDialog}
+                    >
+                        <DialogContent>
+
+                            {
+                                isLoading ?
+
+
+                                    <Box className={classes.dialogContainer}>
+                                        <Box mb={1}>
+                                            <CircularProgress color='secondary' />
+                                        </Box>
+                                        <DialogContentText>
+                                            Saving...
+                                        </DialogContentText>
+                                    </Box>
+
+                                    :
+
+                                    <Box className={classes.dialogContainer}>
+                                        <DialogContentText>
+                                            <Icon><CheckCircleOutlineRounded className={classes.green} fontSize='large' /></Icon>
+                                        </DialogContentText>
+                                        <DialogContentText>
+                                            Changes applied
+                                        </DialogContentText>
+                                    </Box>
+
+                            }
+
+
+
+
+
+                        </DialogContent>
+
+                    </Dialog>
         </center>
         
     </div>
